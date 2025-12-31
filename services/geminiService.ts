@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ActivityType, AISuggestion, ItineraryItem } from "../types";
+import { enrichWithPlacePhotos } from "./placesService";
 
 export const parseExistingBookings = async (
   rawFlight?: string,
@@ -150,11 +151,6 @@ export const getAIPersonalizedSuggestions = async (destination: string, interest
     model: "gemini-3-flash-preview",
     contents: `Suggest 5 high-quality, real-world attractions or hidden gems in ${destination} for someone interested in ${interests.join(", ")}.
     
-    CRITICAL IMAGE REQUIREMENT:
-    You MUST provide a REAL, high-quality public image URL for each place found via search.
-    - Favor direct links (.jpg, .png) from TripAdvisor, Yelp, or major travel blogs.
-    - Avoid placeholders or restricted thumbnails.
-    
     Data:
     - 'priceRange' ($, $$, $$$, $$$$).
     - Include rating and Google Maps URL.`,
@@ -171,19 +167,19 @@ export const getAIPersonalizedSuggestions = async (destination: string, interest
             type: { type: Type.STRING },
             location: { type: Type.STRING },
             rating: { type: Type.NUMBER },
-            imageUrl: { type: Type.STRING },
             googleMapsUrl: { type: Type.STRING },
             priceRange: { type: Type.STRING },
             reason: { type: Type.STRING }
           },
-          required: ["title", "description", "type", "location", "rating", "imageUrl", "googleMapsUrl", "priceRange", "reason"]
+          required: ["title", "description", "type", "location", "rating", "googleMapsUrl", "priceRange", "reason"]
         }
       }
     }
   });
 
   try {
-    return JSON.parse(response.text || '[]');
+    const suggestions = JSON.parse(response.text || '[]');
+    return enrichWithPlacePhotos(suggestions);
   } catch (e) {
     return [];
   }
@@ -206,11 +202,6 @@ export const getTypeSpecificSuggestions = async (
   
   const prompt = `
     Using GOOGLE SEARCH, find exactly 4 high-quality, REAL-WORLD ${type}s currently operating in ${userCity} that match: "${userTitle}".
-    
-    STRICT IMAGE RULES:
-    1. Use Google Search to find direct, public hotlinkable image URLs (.jpg, .jpeg, .png).
-    2. Do NOT use broken links. 
-    3. If no direct link is available, use a descriptive high-quality image URL from a travel platform.
     
     Data:
     - 'priceRange' ($, $$, $$$, $$$$).
@@ -237,17 +228,17 @@ export const getTypeSpecificSuggestions = async (
             lng: { type: Type.NUMBER },
             rating: { type: Type.NUMBER },
             priceRange: { type: Type.STRING },
-            imageUrl: { type: Type.STRING },
             googleMapsUrl: { type: Type.STRING }
           },
-          required: ["title", "location", "lat", "lng", "googleMapsUrl", "rating", "priceRange", "imageUrl"]
+          required: ["title", "location", "lat", "lng", "googleMapsUrl", "rating", "priceRange"]
         }
       }
     }
   });
 
   try {
-    return JSON.parse(response.text || '[]');
+    const suggestions = JSON.parse(response.text || '[]');
+    return enrichWithPlacePhotos(suggestions);
   } catch (e) {
     return [];
   }
