@@ -7,6 +7,7 @@ import { Trip } from './types';
 import TripList from './components/TripList';
 import TripDetail from './components/TripDetail';
 import ReloadPrompt from './components/ReloadPrompt';
+import InstallPrompt from './components/InstallPrompt';
 import { storage } from './services/storage';
 import { getAIPersonalizedSuggestions } from './services/geminiService';
 
@@ -92,6 +93,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-cream flex flex-col relative overflow-hidden font-sans text-ocean-900">
       <ReloadPrompt />
+      <InstallPrompt />
       <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-md border-b border-sand-200 px-4 py-4 flex items-center justify-between transition-all duration-300">
         {selectedTripId && selectedTrip ? (
           <div className="flex items-center gap-3 animate-in slide-in-from-left duration-300">
