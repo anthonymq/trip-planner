@@ -97,9 +97,11 @@ export const magicParseActivities = async (text: string, destination: string): P
   });
 
   try {
-    return JSON.parse(response.text || '[]');
+    if (!response.text) throw new Error("Empty response from AI");
+    return JSON.parse(response.text);
   } catch (e) {
-    return [];
+    console.error("Magic Parse Failed:", e);
+    throw e;
   }
 };
 

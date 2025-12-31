@@ -103,6 +103,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
   const [isMagicParsing, setIsMagicParsing] = useState(false);
   const [magicResults, setMagicResults] = useState<Partial<ItineraryItem>[]>([]);
   const [selectedMagicIndices, setSelectedMagicIndices] = useState<Set<number>>(new Set());
+  const [magicError, setMagicError] = useState<string | null>(null);
 
   // Activity Form State
   const [activityFormData, setActivityFormData] = useState<Partial<ItineraryItem>>({
@@ -144,6 +145,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
     if (!magicText.trim()) return;
     setIsMagicParsing(true);
     setMagicResults([]);
+    setMagicError(null);
     setSelectedMagicIndices(new Set());
     try {
       const results = await magicParseActivities(magicText, trip.destination);
@@ -151,6 +153,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
       setSelectedMagicIndices(new Set(results.map((_, i) => i)));
     } catch (e) {
       console.error(e);
+      setMagicError('Failed to magically parse. Please try again or check your API key.');
     } finally {
       setIsMagicParsing(false);
     }
@@ -298,7 +301,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
       <div className="flex-1 relative overflow-hidden lg:grid lg:grid-cols-[2fr_3fr]">
         
         {/* Timeline Column */}
-        <div className={`absolute inset-0 lg:static lg:h-full lg:overflow-y-auto bg-cream transition-all duration-300 z-10 ${activeTab === 'timeline' ? 'opacity-100 translate-x-0' : 'lg:opacity-100 lg:translate-x-0 opacity-0 -translate-x-full pointer-events-none lg:pointer-events-auto'}`}>
+        <div className={`absolute inset-0 overflow-y-auto lg:static lg:h-full bg-cream transition-all duration-300 z-10 ${activeTab === 'timeline' ? 'opacity-100 translate-x-0' : 'lg:opacity-100 lg:translate-x-0 opacity-0 -translate-x-full pointer-events-none lg:pointer-events-auto'}`}>
            <div className="p-4 lg:p-6 lg:pb-32">
              <TimelineView 
                  items={trip.itinerary} 
@@ -361,11 +364,17 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
                   </h2>
                   <p className="text-[10px] text-sand-400 font-bold uppercase tracking-widest mt-1">Paste your messy itinerary below</p>
                 </div>
-                <button onClick={() => { setShowMagicModal(false); setMagicResults([]); }} className="p-2 bg-sand-100 rounded-full text-sand-400 hover:text-ocean-900 transition-colors"><X className="w-5 h-5" /></button>
+                <button onClick={() => { setShowMagicModal(false); setMagicResults([]); setMagicError(null); }} className="p-2 bg-sand-100 rounded-full text-sand-400 hover:text-ocean-900 transition-colors"><X className="w-5 h-5" /></button>
               </div>
 
               {magicResults.length === 0 ? (
                 <div className="space-y-4">
+                  {magicError && (
+                    <div className="bg-red-50 text-red-600 p-3 rounded-xl text-xs font-bold border border-red-100 flex items-center gap-2 animate-in slide-in-from-top-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      {magicError}
+                    </div>
+                  )}
                   <textarea 
                      value={magicText}
                      onChange={(e) => setMagicText(e.target.value)}
@@ -462,16 +471,30 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
                     <p className="text-[10px] font-black text-terracotta-400 uppercase tracking-widest">Found in {activityFormData.location || trip.destination}</p>
                     <div className="space-y-4">
                       {typeSuggestions.map((s, idx) => (
-                        <div key={idx} onClick={() => applySuggestion(s)} className="bg-white rounded-3xl border border-sand-100 shadow-sm overflow-hidden hover:border-terracotta-400 hover:shadow-lg transition-all group cursor-pointer flex gap-3 p-3">
-                           <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0">
-                              <ImageWithFallback src={s.imageUrl} seed={s.title || ''} className="w-full h-full object-cover" />
-                           </div>
-                           <div className="flex-1 min-w-0">
-                              <h5 className="text-xs font-black text-ocean-900 truncate">{s.title}</h5>
-                              <p className="text-[10px] text-sand-500 mt-0.5 truncate">{s.location}</p>
-                              {s.rating && <div className="flex items-center gap-1 mt-1"><Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /><span className="text-[10px] font-bold text-amber-500">{s.rating}</span></div>}
-                           </div>
-                        </div>
+                        <div key={idx} className="bg-white rounded-3xl border border-sand-100 shadow-sm overflow-hidden hover:border-terracotta-400 hover:shadow-lg transition-all group cursor-pointer flex gap-3 p-3">
+                           <div onClick={() => applySuggestion(s)} className="w-16 h-16 rounded-2xl overflow-hidden shrink-0">
+                               <ImageWithFallback src={s.imageUrl} seed={s.title || ''} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1 min-w-0" onClick={() => applySuggestion(s)}>
+                               <h5 className="text-xs font-black text-ocean-900 truncate">{s.title}</h5>
+                               <p className="text-[10px] text-sand-500 mt-0.5 truncate">{s.location}</p>
+                               <div className="flex items-center gap-2 mt-1">
+                                 {s.rating && <div className="flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /><span className="text-[10px] font-bold text-amber-500">{s.rating}</span></div>}
+                                 {s.priceRange && <span className="text-[10px] font-bold text-emerald-600">{s.priceRange}</span>}
+                               </div>
+                               {s.description && <p className="text-[10px] text-sand-400 mt-1 line-clamp-2">{s.description}</p>}
+                            </div>
+                            <a 
+                              href={s.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.title} ${s.location}`)}`}
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              onClick={(e) => e.stopPropagation()}
+                              className="self-center p-2 text-sand-400 hover:text-ocean-600 hover:bg-ocean-50 rounded-xl transition-colors shrink-0"
+                              title="View on Google Maps"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                         </div>
                       ))}
                     </div>
                   </div>
@@ -567,11 +590,14 @@ const AISuggestionsView: React.FC<{ destination: string }> = ({ destination }) =
               <p className="text-[10px] font-black text-terracotta-600 uppercase mb-1 tracking-widest">Why we love it</p>
               <p className="text-xs text-terracotta-800/80 italic leading-relaxed">"{s.reason}"</p>
             </div>
-            {s.googleMapsUrl && (
-              <a href={s.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 py-3 bg-white border-2 border-sand-100 rounded-xl text-xs font-black text-ocean-800 hover:bg-ocean-50 hover:border-ocean-200 transition-all shadow-sm uppercase tracking-widest group-hover:bg-ocean-600 group-hover:text-white group-hover:border-ocean-600">
-                <ExternalLink className="w-4 h-4" /> VIEW ON MAPS
-              </a>
-            )}
+            <a 
+              href={s.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.title} ${s.location}`)}`}
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="w-full flex items-center justify-center gap-2 py-3 bg-white border-2 border-sand-100 rounded-xl text-xs font-black text-ocean-800 hover:bg-ocean-50 hover:border-ocean-200 transition-all shadow-sm uppercase tracking-widest group-hover:bg-ocean-600 group-hover:text-white group-hover:border-ocean-600"
+            >
+              <ExternalLink className="w-4 h-4" /> VIEW ON MAPS
+            </a>
           </div>
         </div>
       ))}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Sparkles, 
   ChevronLeft
@@ -6,18 +6,36 @@ import {
 import { Trip } from './types';
 import TripList from './components/TripList';
 import TripDetail from './components/TripDetail';
+import ReloadPrompt from './components/ReloadPrompt';
+import { storage } from './services/storage';
 
 const App: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [newDest, setNewDest] = useState('');
   const [newDays, setNewDays] = useState(3);
 
+  // Load trips from storage on mount
+  useEffect(() => {
+    const loadTrips = async () => {
+      try {
+        const storedTrips = await storage.getAllTrips();
+        setTrips(storedTrips);
+      } catch (error) {
+        console.error('Failed to load trips:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadTrips();
+  }, []);
+
   const selectedTrip = useMemo(() => trips.find(t => t.id === selectedTripId), [trips, selectedTripId]);
 
-  const handleAddTrip = () => {
+  const handleAddTrip = async () => {
     if (!newDest.trim()) return;
     const tripId = Math.random().toString(36).substr(2, 9);
     const newTrip: Trip = {
@@ -29,24 +47,40 @@ const App: React.FC = () => {
       itinerary: [],
       budget: 0
     };
+    
+    // Optimistic update
     setTrips(prev => [...prev, newTrip]);
     setSelectedTripId(tripId);
     setShowAddModal(false);
     setNewDest('');
+    
+    // Save to storage
+    await storage.saveTrip(newTrip);
   };
 
-  const deleteTrip = (id: string, e: React.MouseEvent) => {
+  const deleteTrip = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setTrips(prev => prev.filter(t => t.id !== id));
     if (selectedTripId === id) setSelectedTripId(null);
+    await storage.deleteTrip(id);
   };
 
-  const handleUpdateTrip = (updatedTrip: Trip) => {
+  const handleUpdateTrip = async (updatedTrip: Trip) => {
     setTrips(prev => prev.map(t => t.id === updatedTrip.id ? updatedTrip : t));
+    await storage.saveTrip(updatedTrip);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-ocean-600 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cream flex flex-col relative overflow-hidden font-sans text-ocean-900">
+      <ReloadPrompt />
       <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-md border-b border-sand-200 px-4 py-4 flex items-center justify-between transition-all duration-300">
         {selectedTripId && selectedTrip ? (
           <div className="flex items-center gap-3 animate-in slide-in-from-left duration-300">

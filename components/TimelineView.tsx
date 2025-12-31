@@ -97,7 +97,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ items, onItemClick, onEditI
                   onClick={() => onItemClick(item)}
                   onMouseEnter={() => onItemHover?.(item.id)}
                   onMouseLeave={() => onItemHover?.(undefined)}
-                  className={`group relative p-4 rounded-2xl transition-all cursor-pointer border ${
+                  className={`group relative p-3 rounded-2xl transition-all cursor-pointer border ${
                     activeId === item.id 
                       ? 'bg-white border-ocean-200 shadow-lg scale-[1.02]' 
                       : hoveredItemId === item.id
@@ -107,74 +107,93 @@ const TimelineView: React.FC<TimelineViewProps> = ({ items, onItemClick, onEditI
                 >
                   <div className={`absolute -left-[33px] top-6 w-3 h-3 rounded-full border-2 border-white ${getColor(item.type)} transition-transform ${hoveredItemId === item.id ? 'scale-150' : 'group-hover:scale-125'}`} />
                   
-                  <div className="flex justify-between items-start mb-1">
-                    <div className="flex items-center gap-2">
-                      <div className={`p-2 rounded-lg text-white ${getColor(item.type)}`}>
-                        {getIcon(item.type)}
+                  <div className="flex gap-3">
+                    {/* Square image on the left */}
+                    {item.imageUrl && (
+                      <div className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden">
+                        <img 
+                          src={item.imageUrl} 
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
-                      <div className="flex flex-col">
+                    )}
+                    
+                    {/* Content on the right */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-ocean-900">
-                            {formatTime(item.startTime)}
-                          </span>
-                          {item.rating && (
-                            <div className="flex items-center gap-0.5 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-100">
-                              <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-                              <span className="text-[9px] font-black text-amber-700">{item.rating.toFixed(1)}</span>
+                          <div className={`p-1.5 rounded-lg text-white ${getColor(item.type)}`}>
+                            {getIcon(item.type)}
+                          </div>
+                          <div className="flex flex-col">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-xs font-bold text-ocean-900">
+                                {formatTime(item.startTime)}
+                              </span>
+                              {item.endTime && (
+                                <span className="text-sand-400 text-[10px] font-medium flex items-center gap-0.5">
+                                  <ArrowRight className="w-2.5 h-2.5" /> {formatTime(item.endTime)}
+                                </span>
+                              )}
+                              {item.rating && (
+                                <div className="flex items-center gap-0.5 bg-amber-50 px-1 py-0.5 rounded border border-amber-100">
+                                  <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                                  <span className="text-[9px] font-black text-amber-700">{item.rating.toFixed(1)}</span>
+                                </div>
+                              )}
+                              {item.priceRange && (
+                                <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded border border-emerald-100">
+                                  {item.priceRange}
+                                </span>
+                              )}
                             </div>
-                          )}
-                          {item.priceRange && (
-                            <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-100">
-                              {item.priceRange}
-                            </span>
-                          )}
+                          </div>
                         </div>
-                        {item.endTime && (
-                          <span className="text-sand-400 text-[10px] font-medium flex items-center gap-1">
-                            <ArrowRight className="w-2.5 h-2.5" /> {formatTime(item.endTime)}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <a 
+                            href={item.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${item.title} ${item.location}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1 text-sand-400 hover:text-terracotta-600 hover:bg-terracotta-50 rounded-lg transition-colors"
+                            title="View on Google Maps"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onEditItem(item); }}
+                            className="p-1 text-sand-400 hover:text-ocean-600 hover:bg-ocean-50 rounded-lg transition-colors"
+                            title="Edit activity"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            onClick={(e) => { 
+                            e.stopPropagation(); 
+                            if (window.confirm('Are you sure you want to delete this activity?')) {
+                              onDeleteItem(item.id);
+                            }
+                          }}
+                            className="p-1 text-sand-400 hover:text-terracotta-600 hover:bg-terracotta-50 rounded-lg transition-colors"
+                            title="Delete activity"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {item.googleMapsUrl && (
-                        <a 
-                          href={item.googleMapsUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="p-1.5 text-sand-400 hover:text-terracotta-600 hover:bg-terracotta-50 rounded-lg transition-colors"
-                          title="View on Google Maps"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
+
+                      <h4 className="font-bold text-ocean-900 leading-tight mt-1 text-sm truncate">{item.title}</h4>
+                      <p className="text-xs text-sand-500 flex items-center gap-1 mt-0.5 truncate">
+                        <MapPin className="w-3 h-3 flex-shrink-0" /> {item.location}
+                      </p>
+                      {item.description && (
+                        <p className="text-[11px] text-sand-400 mt-1 line-clamp-1 leading-relaxed">
+                          {item.description}
+                        </p>
                       )}
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); onEditItem(item); }}
-                        className="p-1.5 text-sand-400 hover:text-ocean-600 hover:bg-ocean-50 rounded-lg transition-colors"
-                        title="Edit activity"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); onDeleteItem(item.id); }}
-                        className="p-1.5 text-sand-400 hover:text-terracotta-600 hover:bg-terracotta-50 rounded-lg transition-colors"
-                        title="Delete activity"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
-
-                  <h4 className="font-bold text-ocean-900 leading-tight mt-2">{item.title}</h4>
-                  <p className="text-sm text-sand-500 flex items-center gap-1 mt-1">
-                    <MapPin className="w-3 h-3" /> {item.location}
-                  </p>
-                  {item.description && (
-                    <p className="text-xs text-sand-400 mt-2 line-clamp-2 leading-relaxed">
-                      {item.description}
-                    </p>
-                  )}
                 </div>
 
                 <div className="relative h-0">
