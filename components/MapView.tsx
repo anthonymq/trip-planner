@@ -168,9 +168,13 @@ const MapView: React.FC<MapViewProps> = ({ items, activeId, isVisible, hoveredIt
           dashArray: '8, 8'
         }).addTo(pathLayerRef.current!);
 
-        // Calculate midpoint for the arrow
-        const midLat = (item.lat + next.lat) / 2;
-        const midLng = (item.lng + next.lng) / 2;
+        // Calculate midpoint for the arrow using projection to match the line exactly
+        const p1 = mapRef.current!.project([item.lat, item.lng]);
+        const p2 = mapRef.current!.project([next.lat, next.lng]);
+        const midPoint = p1.add(p2).divideBy(2);
+        const midLatLng = mapRef.current!.unproject(midPoint);
+        const midLat = midLatLng.lat;
+        const midLng = midLatLng.lng;
         const bearing = getBearing(item.lat, item.lng, next.lat, next.lng);
 
         // Add directional arrow using a divIcon
