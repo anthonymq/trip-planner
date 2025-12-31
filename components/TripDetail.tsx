@@ -43,7 +43,8 @@ import {
   Coins,
   Wand2,
   PanelRightOpen,
-  PanelRightClose
+  PanelRightClose,
+  RefreshCw
 } from 'lucide-react';
 import { Trip, ItineraryItem, ActivityType, AISuggestion } from '../types';
 import TimelineView from './TimelineView';
@@ -119,10 +120,23 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
   // Suggestions State
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
   const [typeSuggestions, setTypeSuggestions] = useState<Partial<ItineraryItem & { rating?: number, imageUrl?: string, googleMapsUrl?: string, priceRange?: string }>[]>([]);
+  const [isRefreshingSuggestions, setIsRefreshingSuggestions] = useState(false);
 
   const tripHotel = useMemo(() => trip.itinerary.find(i => i.type === 'hotel'), [trip]);
 
   // --- Handlers ---
+
+  const handleRefreshSuggestions = async () => {
+    setIsRefreshingSuggestions(true);
+    try {
+      const newSuggestions = await getAIPersonalizedSuggestions(trip.destination, ["Culture", "Food", "Relaxation"]);
+      onUpdateTrip({ ...trip, suggestions: newSuggestions });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsRefreshingSuggestions(false);
+    }
+  };
 
   const handleOpenQuickAdd = (afterItem?: ItineraryItem, dateStr?: string) => {
     const defaultStart = afterItem 
@@ -341,14 +355,24 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
                   </button>
                </div>
                <div className="flex-1 overflow-y-auto">
-                 <AISuggestionsView destination={trip.destination} />
+                 <AISuggestionsView 
+                   destination={trip.destination} 
+                   suggestions={trip.suggestions || []} 
+                   isLoading={isRefreshingSuggestions} 
+                   onRefresh={handleRefreshSuggestions} 
+                 />
                </div>
             </div>
         </div>
 
         {/* Mobile Suggestions Tab */}
         <div className={`lg:hidden absolute inset-0 overflow-y-auto bg-cream transition-all duration-300 z-30 ${activeTab === 'ai' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-           <AISuggestionsView destination={trip.destination} />
+           <AISuggestionsView 
+             destination={trip.destination} 
+             suggestions={trip.suggestions || []} 
+             isLoading={isRefreshingSuggestions} 
+             onRefresh={handleRefreshSuggestions} 
+           />
         </div>
       </div>
 
@@ -530,21 +554,15 @@ const SuggestionSkeleton = () => (
 );
 
 // Internal AISuggestionsView component
-const AISuggestionsView: React.FC<{ destination: string }> = ({ destination }) => {
-  const [suggestions, setSuggestions] = useState<AISuggestion[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+interface AISuggestionsViewProps {
+  destination: string;
+  suggestions: AISuggestion[];
+  isLoading: boolean;
+  onRefresh: () => void;
+}
 
-  useEffect(() => {
-    const fetch = async () => {
-      setIsLoading(true);
-      const res = await getAIPersonalizedSuggestions(destination, ["Culture", "Food", "Relaxation"]);
-      setSuggestions(res);
-      setIsLoading(false);
-    };
-    fetch();
-  }, [destination]);
-
-  if (isLoading) return (
+const AISuggestionsView: React.FC<AISuggestionsViewProps> = ({ destination, suggestions, isLoading, onRefresh }) => {
+  if (isLoading && suggestions.length === 0) return (
     <div className="p-4 pb-20 lg:pb-4 space-y-6">
       <SuggestionSkeleton />
       <SuggestionSkeleton />
@@ -554,6 +572,33 @@ const AISuggestionsView: React.FC<{ destination: string }> = ({ destination }) =
 
   return (
     <div className="p-4 pb-20 lg:pb-4 space-y-6">
+      <div className="flex justify-between items-center px-2">
+        <p className="text-[10px] font-black text-sand-400 uppercase tracking-widest">
+          {suggestions.length} Ideas for {destination}
+        </p>
+        <button 
+          onClick={onRefresh}
+          disabled={isLoading} 
+          className="flex items-center gap-2 px-3 py-2 bg-white border border-sand-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-ocean-600 hover:bg-sand-50 transition-all disabled:opacity-50"
+        >
+          <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+          {isLoading ? 'Refreshing...' : 'Refresh'}
+        </button>
+      </div>
+
+      {suggestions.length === 0 && !isLoading && (
+        <div className="text-center py-12 px-6">
+          <Sparkles className="w-12 h-12 text-sand-300 mx-auto mb-4" />
+          <p className="text-sand-500 font-medium">No suggestions yet.</p>
+          <button 
+            onClick={onRefresh}
+            className="mt-4 px-6 py-3 bg-terracotta-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-terracotta-600 transition-colors"
+          >
+            Get AI Ideas
+          </button>
+        </div>
+      )}
+
       {suggestions.map((s, idx) => (
         <div key={idx} className="bg-white rounded-[2rem] border border-sand-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
           <div className="h-48 w-full overflow-hidden relative">

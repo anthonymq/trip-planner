@@ -31,6 +31,7 @@ export interface Trip {
   coverImage: string;
   itinerary: ItineraryItem[];
   budget?: number;
+  suggestions?: AISuggestion[];
 }
 
 export interface AISuggestion {

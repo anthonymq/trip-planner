@@ -8,6 +8,7 @@ import TripList from './components/TripList';
 import TripDetail from './components/TripDetail';
 import ReloadPrompt from './components/ReloadPrompt';
 import { storage } from './services/storage';
+import { getAIPersonalizedSuggestions } from './services/geminiService';
 
 const App: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -45,7 +46,8 @@ const App: React.FC = () => {
       endDate: new Date(Date.now() + (newDays || 1) * 24 * 60 * 60 * 1000).toISOString(),
       coverImage: `https://picsum.photos/seed/${newDest.replace(/\s+/g, '')}/800/600`,
       itinerary: [],
-      budget: 0
+      budget: 0,
+      suggestions: []
     };
     
     // Optimistic update
@@ -56,6 +58,15 @@ const App: React.FC = () => {
     
     // Save to storage
     await storage.saveTrip(newTrip);
+
+    // Fetch suggestions in background
+    getAIPersonalizedSuggestions(newTrip.destination, ["Culture", "Food", "Relaxation"])
+      .then(async (suggestions) => {
+        const updatedTrip = { ...newTrip, suggestions };
+        setTrips(prev => prev.map(t => t.id === tripId ? updatedTrip : t));
+        await storage.saveTrip(updatedTrip);
+      })
+      .catch(err => console.error("Failed to fetch initial suggestions:", err));
   };
 
   const deleteTrip = async (id: string, e: React.MouseEvent) => {
