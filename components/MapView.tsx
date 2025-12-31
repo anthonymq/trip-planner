@@ -177,7 +177,7 @@ const MapView: React.FC<MapViewProps> = ({ items, activeId, isVisible, hoveredIt
         const arrowIcon = L.divIcon({
           className: 'custom-div-icon',
           html: `
-            <div style="transform: rotate(${bearing}deg); display: flex; align-items: center; justify-content: center;">
+            <div style="transform: rotate(${bearing - 90}deg); display: flex; align-items: center; justify-content: center;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
