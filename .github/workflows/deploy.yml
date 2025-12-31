@@ -33,6 +33,8 @@ jobs:
         env:
           # Set the base path for GitHub Pages (e.g., /repo-name/)
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_PLACES_API_KEY: ${{ secrets.GOOGLE_PLACES_API_KEY }}
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
