@@ -1,7 +1,9 @@
 
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { ItineraryItem } from '../types';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { Plane, Hotel, Utensils, MapPin, Bus, MoreHorizontal } from 'lucide-react';
+import { ItineraryItem, ActivityType } from '../types';
 // Add missing Map icon import
 import { Map as MapIcon } from 'lucide-react';
 
@@ -18,9 +20,36 @@ interface MapViewProps {
   items: ItineraryItem[];
   activeId?: string;
   isVisible?: boolean;
+  hoveredItemId?: string;
+  onMarkerClick?: (id: string) => void;
 }
 
-const MapView: React.FC<MapViewProps> = ({ items, activeId, isVisible }) => {
+const getColor = (type: ActivityType) => {
+  switch (type) {
+    case 'flight': return 'bg-ocean-500';
+    case 'hotel': return 'bg-terracotta-500';
+    case 'restaurant': return 'bg-amber-500';
+    case 'attraction': return 'bg-emerald-500';
+    case 'transport': return 'bg-sand-500';
+    default: return 'bg-sand-400';
+  }
+};
+
+const getIconSvg = (type: ActivityType) => {
+  const props = { className: "w-4 h-4" };
+  let icon;
+  switch (type) {
+    case 'flight': icon = <Plane {...props} />; break;
+    case 'hotel': icon = <Hotel {...props} />; break;
+    case 'restaurant': icon = <Utensils {...props} />; break;
+    case 'attraction': icon = <MapPin {...props} />; break;
+    case 'transport': icon = <Bus {...props} />; break;
+    default: icon = <MoreHorizontal {...props} />; break;
+  }
+  return renderToStaticMarkup(icon);
+};
+
+const MapView: React.FC<MapViewProps> = ({ items, activeId, isVisible, hoveredItemId, onMarkerClick }) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
@@ -87,7 +116,20 @@ const MapView: React.FC<MapViewProps> = ({ items, activeId, isVisible }) => {
     items.forEach(item => {
       if (item.lat === 0 && item.lng === 0) return;
       
-      const marker = L.marker([item.lat, item.lng])
+      const isHovered = item.id === hoveredItemId;
+      const type = item.type;
+      
+      const icon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div class="w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-transform ${isHovered ? 'scale-125 bg-ocean-500 ring-4 ring-white' : getColor(type)} text-white border-2 border-white">
+          ${getIconSvg(type)}
+        </div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
+      });
+
+      const marker = L.marker([item.lat, item.lng], { icon })
         .addTo(mapRef.current!)
         .bindPopup(`
           <div style="font-family: 'Inter', sans-serif; min-width: 120px;">
@@ -96,6 +138,10 @@ const MapView: React.FC<MapViewProps> = ({ items, activeId, isVisible }) => {
           </div>
         `);
       
+      marker.on('click', () => {
+        onMarkerClick?.(item.id);
+      });
+
       markersRef.current[item.id] = marker;
       bounds.extend([item.lat, item.lng]);
 
@@ -151,6 +197,38 @@ const MapView: React.FC<MapViewProps> = ({ items, activeId, isVisible }) => {
     }
   }, [items]);
 
+  // Handle Hover Item Selection
+  useEffect(() => {
+    if (!mapRef.current) return;
+    
+    // Update all markers to reflect hover state
+    // We do this by updating the icon of each marker
+    Object.entries(markersRef.current).forEach(([id, marker]) => {
+      const isHovered = id === hoveredItemId;
+      const item = items.find(i => i.id === id);
+      if (!item) return;
+
+      const type = item.type;
+      const icon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div class="w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-transform duration-300 ${isHovered ? 'scale-125 bg-ocean-500 ring-4 ring-white z-[1000]' : getColor(type)} text-white border-2 border-white">
+          ${getIconSvg(type)}
+        </div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -16]
+      });
+
+      marker.setIcon(icon);
+      marker.setZIndexOffset(isHovered ? 1000 : 0);
+
+      if (isHovered && mapRef.current) {
+         mapRef.current.panTo(marker.getLatLng(), { animate: true, duration: 0.5 });
+      }
+    });
+
+  }, [hoveredItemId, items]);
+
   // Handle Active Item Selection
   useEffect(() => {
     if (activeId && markersRef.current[activeId] && mapRef.current) {
@@ -170,16 +248,21 @@ const MapView: React.FC<MapViewProps> = ({ items, activeId, isVisible }) => {
   }, [isVisible]);
 
   return (
-    <div className="h-full w-full relative rounded-2xl overflow-hidden shadow-inner bg-slate-100 border border-slate-200">
+    <div className="h-full w-full relative rounded-2xl overflow-hidden shadow-inner bg-sand-100 border border-sand-200">
       <div ref={containerRef} className="h-full w-full outline-none" style={{ minHeight: '300px' }} />
       {items.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-50/80 backdrop-blur-sm z-[1000] pointer-events-none">
+        <div className="absolute inset-0 flex items-center justify-center bg-cream/80 backdrop-blur-sm z-[1000] pointer-events-none">
           <div className="text-center p-6">
-            <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-3">
-              <MapIcon className="w-6 h-6 text-slate-400" />
-            </div>
-            <p className="text-slate-500 font-bold">No locations to display</p>
-            <p className="text-slate-400 text-xs mt-1">Add items to your itinerary to see the route.</p>
+            <svg viewBox="0 0 120 120" className="w-20 h-20 mx-auto mb-4 text-sand-300">
+              <circle cx="60" cy="60" r="50" fill="none" stroke="currentColor" strokeWidth="2"/>
+              <circle cx="60" cy="60" r="40" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4"/>
+              <path d="M60 20 L60 100 M20 60 L100 60" stroke="currentColor" strokeWidth="2"/>
+              <polygon points="60,25 55,45 65,45" fill="#eb6b42"/>
+              <polygon points="60,95 55,75 65,75" fill="currentColor"/>
+              <circle cx="60" cy="60" r="6" fill="currentColor"/>
+            </svg>
+            <p className="text-ocean-800 font-bold text-lg">No locations yet</p>
+            <p className="text-sand-500 text-sm mt-1">Add items to your itinerary to see the route.</p>
           </div>
         </div>
       )}
