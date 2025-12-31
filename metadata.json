@@ -1,0 +1,7 @@
+{
+  "name": "Trip Planner",
+  "description": "A comprehensive travel companion app to organize trips, view flight itineraries, discover new places, and visualize your journey on an interactive timeline and map.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
