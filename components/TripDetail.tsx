@@ -49,7 +49,8 @@ import {
 import { Trip, ItineraryItem, ActivityType, AISuggestion } from '../types';
 import TimelineView from './TimelineView';
 import MapView from './MapView';
-import { getAIPersonalizedSuggestions, getTypeSpecificSuggestions, magicParseActivities } from '../services/geminiService';
+import { getAIPersonalizedSuggestions, magicParseActivities } from '../services/geminiService';
+import { searchPlacesByType, PlaceSuggestion } from '../services/placesService';
 
 // Utilities
 const ImageWithFallback = ({ src, alt, className, seed }: { src?: string, alt?: string, className?: string, seed: string }) => {
@@ -119,7 +120,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
 
   // Suggestions State
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
-  const [typeSuggestions, setTypeSuggestions] = useState<Partial<ItineraryItem & { rating?: number, imageUrl?: string, googleMapsUrl?: string, priceRange?: string }>[]>([]);
+  const [typeSuggestions, setTypeSuggestions] = useState<PlaceSuggestion[]>([]);
   const [isRefreshingSuggestions, setIsRefreshingSuggestions] = useState(false);
 
   const tripHotel = useMemo(() => trip.itinerary.find(i => i.type === 'hotel'), [trip]);
@@ -202,21 +203,17 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
     setIsFetchingSuggestions(true);
     setTypeSuggestions([]);
     try {
-      const suggestions = await getTypeSpecificSuggestions(
-        trip.destination, 
-        activityFormData.type as ActivityType,
-        {
-          title: activityFormData.title,
-          location: activityFormData.location || trip.destination,
-          hotelCoords: tripHotel ? { lat: tripHotel.lat, lng: tripHotel.lng } : undefined,
-          startTime: toISODate(activityFormData.startTime)
-        }
+      const suggestions = await searchPlacesByType(
+        activityFormData.title || '',
+        activityFormData.location || trip.destination,
+        activityFormData.type as string,
+        4
       );
       setTypeSuggestions(suggestions);
     } catch (e) { console.error(e); } finally { setIsFetchingSuggestions(false); }
   };
 
-  const applySuggestion = (s: Partial<ItineraryItem & { rating?: number, googleMapsUrl?: string, priceRange?: string }>) => {
+  const applySuggestion = (s: PlaceSuggestion) => {
     setActivityFormData(prev => ({
       ...prev,
       title: s.title,
@@ -227,8 +224,6 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
       rating: s.rating,
       priceRange: s.priceRange,
       googleMapsUrl: s.googleMapsUrl,
-      startTime: toInputDate(s.startTime) || prev.startTime,
-      endTime: toInputDate(s.endTime) || prev.endTime,
       description: s.description
     }));
     setTypeSuggestions([]);

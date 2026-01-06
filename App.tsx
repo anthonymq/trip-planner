@@ -9,7 +9,6 @@ import TripDetail from './components/TripDetail';
 import ReloadPrompt from './components/ReloadPrompt';
 import InstallPrompt from './components/InstallPrompt';
 import { storage } from './services/storage';
-import { getAIPersonalizedSuggestions } from './services/geminiService';
 
 const App: React.FC = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -59,15 +58,6 @@ const App: React.FC = () => {
     
     // Save to storage
     await storage.saveTrip(newTrip);
-
-    // Fetch suggestions in background
-    getAIPersonalizedSuggestions(newTrip.destination, ["Culture", "Food", "Relaxation"])
-      .then(async (suggestions) => {
-        const updatedTrip = { ...newTrip, suggestions };
-        setTrips(prev => prev.map(t => t.id === tripId ? updatedTrip : t));
-        await storage.saveTrip(updatedTrip);
-      })
-      .catch(err => console.error("Failed to fetch initial suggestions:", err));
   };
 
   const deleteTrip = async (id: string, e: React.MouseEvent) => {

@@ -3,16 +3,131 @@ const PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
 interface Place {
   id: string;
   displayName?: { text: string };
+  formattedAddress?: string;
   photos?: { name: string }[];
   location?: {
     latitude: number;
     longitude: number;
   };
+  rating?: number;
+  priceLevel?: string;
+  googleMapsUri?: string;
+  editorialSummary?: { text: string };
 }
 
 interface TextSearchResponse {
   places: Place[];
 }
+
+// Map ActivityType to Google Places includedType
+const ACTIVITY_TYPE_TO_PLACES_TYPE: Record<string, string[]> = {
+  restaurant: ['restaurant', 'cafe', 'bakery', 'bar'],
+  attraction: ['tourist_attraction', 'museum', 'art_gallery', 'park', 'point_of_interest'],
+  hotel: ['lodging', 'hotel'],
+  transport: ['transit_station', 'airport', 'train_station', 'bus_station'],
+  other: ['point_of_interest']
+};
+
+// Map Google priceLevel to display format
+const PRICE_LEVEL_MAP: Record<string, string> = {
+  'PRICE_LEVEL_FREE': 'Free',
+  'PRICE_LEVEL_INEXPENSIVE': '$',
+  'PRICE_LEVEL_MODERATE': '$$',
+  'PRICE_LEVEL_EXPENSIVE': '$$$',
+  'PRICE_LEVEL_VERY_EXPENSIVE': '$$$$'
+};
+
+export interface PlaceSuggestion {
+  title: string;
+  location: string;
+  description?: string;
+  lat: number;
+  lng: number;
+  imageUrl?: string;
+  rating?: number;
+  priceRange?: string;
+  googleMapsUrl?: string;
+}
+
+/**
+ * Search for places using Google Places API with type filtering
+ * This replaces the AI-based getTypeSpecificSuggestions for faster results
+ */
+export const searchPlacesByType = async (
+  query: string,
+  location: string,
+  activityType: string,
+  maxResults: number = 4
+): Promise<PlaceSuggestion[]> => {
+  if (!PLACES_API_KEY) {
+    console.warn("GOOGLE_PLACES_API_KEY not set");
+    return [];
+  }
+
+  // Build the search query
+  const typeHint = activityType === 'restaurant' ? 'restaurant' : 
+                   activityType === 'hotel' ? 'hotel' : 
+                   activityType === 'attraction' ? '' : '';
+  const searchQuery = query ? `${query} ${typeHint} in ${location}` : `best ${typeHint || 'places'} in ${location}`;
+  
+  // Get the included types for this activity
+  const includedTypes = ACTIVITY_TYPE_TO_PLACES_TYPE[activityType] || ACTIVITY_TYPE_TO_PLACES_TYPE.other;
+
+  try {
+    const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": PLACES_API_KEY,
+        "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.photos,places.location,places.rating,places.priceLevel,places.googleMapsUri,places.editorialSummary"
+      },
+      body: JSON.stringify({
+        textQuery: searchQuery,
+        includedType: includedTypes[0], // Use primary type
+        maxResultCount: maxResults,
+        languageCode: "en"
+      })
+    });
+    
+    const data: TextSearchResponse = await response.json();
+    
+    if (!data.places || data.places.length === 0) {
+      // Fallback: try without type restriction
+      const fallbackResponse = await fetch("https://places.googleapis.com/v1/places:searchText", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": PLACES_API_KEY,
+          "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.photos,places.location,places.rating,places.priceLevel,places.googleMapsUri,places.editorialSummary"
+        },
+        body: JSON.stringify({
+          textQuery: searchQuery,
+          maxResultCount: maxResults,
+          languageCode: "en"
+        })
+      });
+      const fallbackData: TextSearchResponse = await fallbackResponse.json();
+      if (!fallbackData.places) return [];
+      data.places = fallbackData.places;
+    }
+    
+    // Transform to PlaceSuggestion format
+    return data.places.map(place => ({
+      title: place.displayName?.text || 'Unknown Place',
+      location: place.formattedAddress || location,
+      description: place.editorialSummary?.text,
+      lat: place.location?.latitude || 0,
+      lng: place.location?.longitude || 0,
+      imageUrl: place.photos?.[0]?.name ? getPhotoUrl(place.photos[0].name, 400) : undefined,
+      rating: place.rating,
+      priceRange: place.priceLevel ? PRICE_LEVEL_MAP[place.priceLevel] : undefined,
+      googleMapsUrl: place.googleMapsUri
+    }));
+  } catch (error) {
+    console.error("Places API search error:", error);
+    return [];
+  }
+};
 
 /**
  * Search for a place using Places API (New) - supports CORS

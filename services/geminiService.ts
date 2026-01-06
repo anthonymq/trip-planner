@@ -8,7 +8,8 @@ export const parseExistingBookings = async (
 ): Promise<Partial<ItineraryItem & { flightInfo?: any, hotelInfo?: any }>[]> => {
   if (!rawFlight && !rawHotel) return [];
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
   const prompt = `
     Extract structured travel events from the following text provided by a user.
     Identify any flights or hotel stays. 
@@ -55,7 +56,8 @@ export const parseExistingBookings = async (
 
 export const magicParseActivities = async (text: string, destination: string): Promise<Partial<ItineraryItem>[]> => {
   if (!text.trim()) return [];
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
   
   const prompt = `
     Extract ALL travel activities, meals, tours, and transfers from this text: "${text}". 
@@ -110,7 +112,8 @@ export const generateTripItinerary = async (
   duration: number, 
   confirmedItems: Partial<ItineraryItem>[]
 ): Promise<Partial<ItineraryItem>[]> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
   
   let contextPrompt = `Generate a ${duration}-day travel itinerary for ${destination}. 
     Output a JSON array of activities with title, type, location, startTime, lat, lng, imageUrl.`;
@@ -147,7 +150,8 @@ export const generateTripItinerary = async (
 };
 
 export const getAIPersonalizedSuggestions = async (destination: string, interests: string[]): Promise<AISuggestion[]> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -197,7 +201,8 @@ export const getTypeSpecificSuggestions = async (
     startTime?: string
   }
 ): Promise<Partial<ItineraryItem & { rating?: number, googleMapsUrl?: string, priceRange?: string }>[]> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+  const ai = new GoogleGenAI({ apiKey });
   
   const userCity = context?.location || destination;
   const userTitle = context?.title || "";
