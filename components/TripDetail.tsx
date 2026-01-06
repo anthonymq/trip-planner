@@ -49,8 +49,8 @@ import {
 import { Trip, ItineraryItem, ActivityType, AISuggestion } from '../types';
 import TimelineView from './TimelineView';
 import MapView from './MapView';
+import ActivityForm from './ActivityForm';
 import { getAIPersonalizedSuggestions, magicParseActivities } from '../services/geminiService';
-import { searchPlacesByType, PlaceSuggestion } from '../services/placesService';
 
 // Utilities
 const ImageWithFallback = ({ src, alt, className, seed }: { src?: string, alt?: string, className?: string, seed: string }) => {
@@ -117,10 +117,6 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
     description: '',
   });
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
-
-  // Suggestions State
-  const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
-  const [typeSuggestions, setTypeSuggestions] = useState<PlaceSuggestion[]>([]);
   const [isRefreshingSuggestions, setIsRefreshingSuggestions] = useState(false);
 
   const tripHotel = useMemo(() => trip.itinerary.find(i => i.type === 'hotel'), [trip]);
@@ -152,7 +148,6 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
       endTime: '',
       description: '',
     });
-    setTypeSuggestions([]);
     setShowQuickAdd(true);
   };
 
@@ -198,55 +193,25 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
     setMagicResults([]);
   };
 
-  const fetchQuickSuggestions = async () => {
-    if (!trip.destination || !activityFormData.type) return;
-    setIsFetchingSuggestions(true);
-    setTypeSuggestions([]);
-    try {
-      const suggestions = await searchPlacesByType(
-        activityFormData.title || '',
-        activityFormData.location || trip.destination,
-        activityFormData.type as string,
-        4
-      );
-      setTypeSuggestions(suggestions);
-    } catch (e) { console.error(e); } finally { setIsFetchingSuggestions(false); }
-  };
-
-  const applySuggestion = (s: PlaceSuggestion) => {
-    setActivityFormData(prev => ({
-      ...prev,
-      title: s.title,
-      location: s.location,
-      lat: s.lat,
-      lng: s.lng,
-      imageUrl: s.imageUrl,
-      rating: s.rating,
-      priceRange: s.priceRange,
-      googleMapsUrl: s.googleMapsUrl,
-      description: s.description
-    }));
-    setTypeSuggestions([]);
-  };
-
-  const executeActivitySave = () => {
-    const isoStart = toISODate(activityFormData.startTime);
+  const executeActivitySave = (data?: Partial<ItineraryItem>) => {
+    const dataToSave = data || activityFormData;
+    const isoStart = toISODate(dataToSave.startTime);
     if (!isoStart) return;
 
     const formattedItem: ItineraryItem = {
       id: editingItemId || Math.random().toString(36).substr(2, 9),
-      type: (activityFormData.type as ActivityType) || 'attraction',
-      title: activityFormData.title || 'Activity',
-      location: activityFormData.location || 'Location',
+      type: (dataToSave.type as ActivityType) || 'attraction',
+      title: dataToSave.title || 'Activity',
+      location: dataToSave.location || 'Location',
       startTime: isoStart,
-      endTime: toISODate(activityFormData.endTime) || undefined,
-      description: activityFormData.description,
-      lat: activityFormData.lat || 0,
-      lng: activityFormData.lng || 0,
-      imageUrl: activityFormData.imageUrl,
-      rating: activityFormData.rating,
-      priceRange: activityFormData.priceRange,
-      googleMapsUrl: activityFormData.googleMapsUrl
+      endTime: toISODate(dataToSave.endTime) || undefined,
+      description: dataToSave.description,
+      lat: dataToSave.lat || 0,
+      lng: dataToSave.lng || 0,
+      imageUrl: dataToSave.imageUrl,
+      rating: dataToSave.rating,
+      priceRange: dataToSave.priceRange,
+      googleMapsUrl: dataToSave.googleMapsUrl
     };
 
     let newItinerary;
@@ -310,22 +275,48 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
       <div className="flex-1 relative overflow-hidden lg:grid lg:grid-cols-[2fr_3fr]">
         
         {/* Timeline Column */}
-        <div className={`absolute inset-0 overflow-y-auto lg:static lg:h-full bg-cream transition-all duration-300 z-10 ${activeTab === 'timeline' ? 'opacity-100 translate-x-0' : 'lg:opacity-100 lg:translate-x-0 opacity-0 -translate-x-full pointer-events-none lg:pointer-events-auto'}`}>
-           <div className="p-4 lg:p-6 lg:pb-32">
-             <TimelineView 
-                 items={trip.itinerary} 
-                 activeId={activeItemId}
-                 hoveredItemId={hoveredItemId}
-                 onItemHover={setHoveredItemId}
-                 onItemClick={(item) => setActiveItemId(item.id)} 
-                 onEditItem={(item) => { 
-                     setEditingItemId(item.id); 
-                     setActivityFormData({ ...item, startTime: toInputDate(item.startTime), endTime: item.endTime ? toInputDate(item.endTime) : '' }); 
-                     setShowEditItemModal(true); 
-                 }} 
-                 onDeleteItem={handleDeleteItem} 
-                 onAddAfter={handleOpenQuickAdd} 
-               />
+        <div className={`absolute inset-0 lg:static lg:h-full bg-cream transition-all duration-300 z-10 flex flex-col ${activeTab === 'timeline' ? 'opacity-100 translate-x-0' : 'lg:opacity-100 lg:translate-x-0 opacity-0 -translate-x-full pointer-events-none lg:pointer-events-auto'}`}>
+           
+           {/* Inline Quick Add Panel */}
+           <div className={`transition-all duration-500 ease-in-out overflow-hidden bg-white border-b border-sand-200 shadow-xl z-20 ${showQuickAdd ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className="max-h-[80vh] overflow-y-auto p-4 sm:p-6 bg-cream/50">
+                 <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-serif font-bold text-lg text-ocean-900 flex items-center gap-2">
+                       <Plus className="w-4 h-4 text-terracotta-500" /> Quick Add
+                    </h3>
+                    <button onClick={() => setShowQuickAdd(false)} className="p-2 hover:bg-sand-100 rounded-full text-sand-400 transition-colors">
+                       <X className="w-4 h-4" />
+                    </button>
+                 </div>
+                 <ActivityForm 
+                    initialData={activityFormData}
+                    tripDestination={trip.destination}
+                    onSubmit={(data) => {
+                       setActivityFormData(data); 
+                       executeActivitySave(data); 
+                    }}
+                    onCancel={() => setShowQuickAdd(false)}
+                 />
+              </div>
+           </div>
+
+           <div className="flex-1 overflow-y-auto">
+             <div className="p-4 lg:p-6 lg:pb-32">
+               <TimelineView 
+                   items={trip.itinerary} 
+                   activeId={activeItemId}
+                   hoveredItemId={hoveredItemId}
+                   onItemHover={setHoveredItemId}
+                   onItemClick={(item) => setActiveItemId(item.id)} 
+                   onEditItem={(item) => { 
+                       setEditingItemId(item.id); 
+                       setActivityFormData({ ...item, startTime: toInputDate(item.startTime), endTime: item.endTime ? toInputDate(item.endTime) : '' }); 
+                       setShowEditItemModal(true); 
+                   }} 
+                   onDeleteItem={handleDeleteItem} 
+                   onAddAfter={handleOpenQuickAdd} 
+                 />
+             </div>
            </div>
         </div>
 
@@ -456,78 +447,23 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
         </div>
       )}
 
-      {(showQuickAdd || showEditItemModal) && (
+      {showEditItemModal && (
         <div className="fixed inset-0 z-[110] bg-ocean-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto shadow-2xl">
              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-black text-ocean-900">{showEditItemModal ? 'Edit Activity' : 'Quick Add Activity'}</h2>
-                <button onClick={() => { setShowQuickAdd(false); setShowEditItemModal(false); setEditingItemId(null); }} className="p-2 bg-sand-100 rounded-full text-sand-400 hover:text-ocean-900 transition-colors"><X className="w-5 h-5" /></button>
+                <h2 className="text-xl font-black text-ocean-900">Edit Activity</h2>
+                <button onClick={() => { setShowEditItemModal(false); setEditingItemId(null); }} className="p-2 bg-sand-100 rounded-full text-sand-400 hover:text-ocean-900 transition-colors"><X className="w-5 h-5" /></button>
              </div>
-             <div className="space-y-5">
-                <div>
-                  <label className="text-xs font-bold text-sand-400 uppercase tracking-widest block mb-2">Activity Type</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[{ type: 'attraction', icon: MapPin, label: 'Visit' }, { type: 'restaurant', icon: Utensils, label: 'Food' }, { type: 'hotel', icon: Building2, label: 'Stay' }, { type: 'transport', icon: Bus, label: 'Move' }, { type: 'other', icon: MoreHorizontal, label: 'Other' }].map(item => (
-                      <button key={item.type} onClick={() => { setActivityFormData({ ...activityFormData, type: item.type as ActivityType }); setTypeSuggestions([]); }} className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${activityFormData.type === item.type ? 'border-ocean-600 bg-ocean-50 text-ocean-600' : 'border-sand-100 bg-sand-50 text-sand-500 hover:border-sand-200'}`}>
-                        <item.icon className="w-4 h-4" /><span className="text-[10px] font-bold uppercase">{item.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div><label className="text-xs font-bold text-sand-400 uppercase tracking-widest block mb-2">Title</label><input type="text" value={activityFormData.title} onChange={(e) => setActivityFormData({ ...activityFormData, title: e.target.value })} placeholder="e.g. French Cuisine" className="w-full bg-sand-50 border-2 border-sand-100 rounded-2xl py-3 px-4 font-medium focus:border-ocean-500 focus:outline-none transition-colors text-ocean-900" /></div>
-                <div><label className="text-xs font-bold text-sand-400 uppercase tracking-widest block mb-2">Location</label><input type="text" value={activityFormData.location} onChange={(e) => setActivityFormData({ ...activityFormData, location: e.target.value })} placeholder="e.g. Paris" className="w-full bg-sand-50 border-2 border-sand-100 rounded-2xl py-3 px-4 font-medium focus:border-ocean-500 focus:outline-none transition-colors text-ocean-900" /></div>
-
-                {!showEditItemModal && activityFormData.type && (
-                  <div className="pt-1">
-                    <button onClick={fetchQuickSuggestions} disabled={isFetchingSuggestions} className="w-full py-3 border-2 border-terracotta-100 bg-terracotta-50/50 rounded-2xl text-xs font-bold text-terracotta-600 flex items-center justify-center gap-2 hover:bg-terracotta-100 transition-all disabled:opacity-50 shadow-sm">
-                      {isFetchingSuggestions ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />} GET SMART SUGGESTIONS
-                    </button>
-                  </div>
-                )}
-
-                {typeSuggestions.length > 0 && (
-                  <div className="bg-terracotta-50/30 border border-terracotta-100 rounded-[24px] p-4 space-y-4 max-h-[300px] overflow-y-auto shadow-inner">
-                    <p className="text-[10px] font-black text-terracotta-400 uppercase tracking-widest">Found in {activityFormData.location || trip.destination}</p>
-                    <div className="space-y-4">
-                      {typeSuggestions.map((s, idx) => (
-                        <div key={idx} className="bg-white rounded-3xl border border-sand-100 shadow-sm overflow-hidden hover:border-terracotta-400 hover:shadow-lg transition-all group cursor-pointer flex gap-3 p-3">
-                           <div onClick={() => applySuggestion(s)} className="w-16 h-16 rounded-2xl overflow-hidden shrink-0">
-                               <ImageWithFallback src={s.imageUrl} seed={s.title || ''} className="w-full h-full object-cover" />
-                            </div>
-                            <div className="flex-1 min-w-0" onClick={() => applySuggestion(s)}>
-                               <h5 className="text-xs font-black text-ocean-900 truncate">{s.title}</h5>
-                               <p className="text-[10px] text-sand-500 mt-0.5 truncate">{s.location}</p>
-                               <div className="flex items-center gap-2 mt-1">
-                                 {s.rating && <div className="flex items-center gap-0.5"><Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /><span className="text-[10px] font-bold text-amber-500">{s.rating}</span></div>}
-                                 {s.priceRange && <span className="text-[10px] font-bold text-emerald-600">{s.priceRange}</span>}
-                               </div>
-                               {s.description && <p className="text-[10px] text-sand-400 mt-1 line-clamp-2">{s.description}</p>}
-                            </div>
-                            <a 
-                              href={s.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.title} ${s.location}`)}`}
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              onClick={(e) => e.stopPropagation()}
-                              className="self-center p-2 text-sand-400 hover:text-ocean-600 hover:bg-ocean-50 rounded-xl transition-colors shrink-0"
-                              title="View on Google Maps"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div><label className="text-xs font-bold text-sand-400 uppercase tracking-widest block mb-2">Start Time</label><input type="datetime-local" value={activityFormData.startTime} onChange={(e) => setActivityFormData({ ...activityFormData, startTime: e.target.value })} className="w-full bg-sand-50 border-2 border-sand-100 rounded-xl py-3 px-3 text-xs font-bold text-ocean-700 focus:border-ocean-500 focus:outline-none transition-colors" /></div>
-                  <div><label className="text-xs font-bold text-sand-400 uppercase tracking-widest block mb-2">End Time</label><input type="datetime-local" value={activityFormData.endTime || ''} onChange={(e) => setActivityFormData({ ...activityFormData, endTime: e.target.value })} className="w-full bg-sand-50 border-2 border-sand-100 rounded-xl py-3 px-3 text-xs font-bold text-ocean-700 focus:border-ocean-500 focus:outline-none transition-colors" /></div>
-                </div>
-                <button disabled={!toISODate(activityFormData.startTime)} onClick={executeActivitySave} className="w-full py-4 bg-ocean-600 text-white rounded-2xl font-bold shadow-lg shadow-ocean-500/30 disabled:opacity-50 hover:bg-ocean-700 transition-all active:scale-[0.98]">
-                  {showEditItemModal ? <Save className="w-4 h-4 mr-2 inline" /> : <Plus className="w-4 h-4 mr-2 inline" />}
-                  {showEditItemModal ? 'Save Changes' : 'Add Activity'}
-                </button>
-             </div>
+             <ActivityForm 
+                initialData={activityFormData}
+                tripDestination={trip.destination}
+                isEditing={true}
+                onSubmit={(data) => {
+                   setActivityFormData(data);
+                   executeActivitySave(data);
+                }}
+                onCancel={() => { setShowEditItemModal(false); setEditingItemId(null); }}
+             />
           </div>
         </div>
       )}

@@ -73,6 +73,9 @@ export const searchPlacesByType = async (
   // Get the included types for this activity
   const includedTypes = ACTIVITY_TYPE_TO_PLACES_TYPE[activityType] || ACTIVITY_TYPE_TO_PLACES_TYPE.other;
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
   try {
     const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
@@ -86,29 +89,58 @@ export const searchPlacesByType = async (
         includedType: includedTypes[0], // Use primary type
         maxResultCount: maxResults,
         languageCode: "en"
-      })
+      }),
+      signal: controller.signal
     });
     
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.error(`Places API error: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Error details:', errorText);
+      throw new Error(`Places API failed with status ${response.status}`);
+    }
+
     const data: TextSearchResponse = await response.json();
     
     if (!data.places || data.places.length === 0) {
       // Fallback: try without type restriction
-      const fallbackResponse = await fetch("https://places.googleapis.com/v1/places:searchText", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": PLACES_API_KEY,
-          "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.photos,places.location,places.rating,places.priceLevel,places.googleMapsUri,places.editorialSummary"
-        },
-        body: JSON.stringify({
-          textQuery: searchQuery,
-          maxResultCount: maxResults,
-          languageCode: "en"
-        })
-      });
-      const fallbackData: TextSearchResponse = await fallbackResponse.json();
-      if (!fallbackData.places) return [];
-      data.places = fallbackData.places;
+      // We create a new controller for the fallback request
+      const fallbackController = new AbortController();
+      const fallbackTimeoutId = setTimeout(() => fallbackController.abort(), 10000);
+
+      try {
+        const fallbackResponse = await fetch("https://places.googleapis.com/v1/places:searchText", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": PLACES_API_KEY,
+            "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.photos,places.location,places.rating,places.priceLevel,places.googleMapsUri,places.editorialSummary"
+          },
+          body: JSON.stringify({
+            textQuery: searchQuery,
+            maxResultCount: maxResults,
+            languageCode: "en"
+          }),
+          signal: fallbackController.signal
+        });
+
+        clearTimeout(fallbackTimeoutId);
+
+        if (!fallbackResponse.ok) {
+           console.error(`Places API Fallback error: ${fallbackResponse.status}`);
+           throw new Error(`Places API Fallback failed with status ${fallbackResponse.status}`);
+        }
+
+        const fallbackData: TextSearchResponse = await fallbackResponse.json();
+        if (!fallbackData.places) return []; // Valid "no results"
+        data.places = fallbackData.places;
+      } catch (fallbackError) {
+        clearTimeout(fallbackTimeoutId);
+        console.error("Places API fallback search error:", fallbackError);
+        throw fallbackError;
+      }
     }
     
     // Transform to PlaceSuggestion format
@@ -124,8 +156,14 @@ export const searchPlacesByType = async (
       googleMapsUrl: place.googleMapsUri
     }));
   } catch (error) {
-    console.error("Places API search error:", error);
-    return [];
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error("Places API request timed out after 10s");
+      throw new Error("Request timed out. Please check your connection.");
+    } else {
+      console.error("Places API search error:", error);
+      throw error;
+    }
   }
 };
 

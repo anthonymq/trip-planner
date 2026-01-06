@@ -114,6 +114,20 @@ export default defineConfig(({ mode }) => {
                     statuses: [0, 200]
                   }
                 }
+              },
+              {
+                urlPattern: /^https:\/\/places\.googleapis\.com\/.*/i,
+                handler: 'NetworkFirst',
+                options: {
+                  cacheName: 'google-places-cache',
+                  expiration: {
+                    maxEntries: 100,
+                    maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                  },
+                  cacheableResponse: {
+                    statuses: [0, 200]
+                  }
+                }
               }
             ]
           },
