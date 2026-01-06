@@ -17,7 +17,6 @@ const App: React.FC = () => {
   
   const [showAddModal, setShowAddModal] = useState(false);
   const [newDest, setNewDest] = useState('');
-  const [newDays, setNewDays] = useState(3);
 
   // Load trips from storage on mount
   useEffect(() => {
@@ -43,7 +42,7 @@ const App: React.FC = () => {
       id: tripId,
       destination: newDest,
       startDate: new Date().toISOString(),
-      endDate: new Date(Date.now() + (newDays || 1) * 24 * 60 * 60 * 1000).toISOString(),
+      endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
       coverImage: `https://picsum.photos/seed/${newDest.replace(/\s+/g, '')}/800/600`,
       itinerary: [],
       budget: 0,
@@ -142,14 +141,7 @@ const App: React.FC = () => {
                   onKeyDown={(e) => e.key === 'Enter' && newDest.trim() && handleAddTrip()}
                 />
               </div>
-              <div>
-                 <label className="text-[10px] font-bold text-sand-400 uppercase tracking-widest block mb-2 ml-1">Duration (Days)</label>
-                 <div className="flex items-center gap-4">
-                    <button onClick={() => setNewDays(Math.max(1, newDays - 1))} className="w-12 h-12 rounded-2xl border-2 border-sand-100 flex items-center justify-center text-xl font-bold text-sand-400 hover:border-ocean-200 hover:text-ocean-600 transition-all">-</button>
-                    <span className="flex-1 text-center font-black text-2xl text-ocean-900">{newDays}</span>
-                    <button onClick={() => setNewDays(newDays + 1)} className="w-12 h-12 rounded-2xl border-2 border-sand-100 flex items-center justify-center text-xl font-bold text-sand-400 hover:border-ocean-200 hover:text-ocean-600 transition-all">+</button>
-                 </div>
-              </div>
+
             </div>
             <div className="mt-10 flex gap-3">
               <button onClick={() => setShowAddModal(false)} className="flex-1 py-4 text-sand-400 font-black text-xs uppercase tracking-widest hover:bg-sand-50 rounded-2xl transition-all">Cancel</button>
