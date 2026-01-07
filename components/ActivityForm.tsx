@@ -144,13 +144,10 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
       {/* Smart Suggestions Button - Primary CTA on mobile, shown when type selected */}
       {!isEditing && formData.type && (
         <button 
-          onClick={fetchQuickSuggestions} 
-          onPointerDown={(e) => {
-            if (e.pointerType === 'touch') {
-              e.preventDefault();
-              fetchQuickSuggestions();
-            }
-          }}
+          onClick={() => {
+            console.log("Find places clicked for:", formData.type, tripDestination);
+            fetchQuickSuggestions();
+          }} 
           disabled={isFetchingSuggestions} 
           className="w-full py-4 sm:py-3 bg-terracotta-500 rounded-2xl text-xs font-black uppercase tracking-widest text-white flex items-center justify-center gap-2 hover:bg-terracotta-600 transition-all disabled:opacity-50 shadow-lg shadow-terracotta-500/20 active:scale-[0.98] touch-manipulation"
         >

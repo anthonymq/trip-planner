@@ -50,6 +50,7 @@ import { Trip, ItineraryItem, ActivityType, AISuggestion } from '../types';
 import TimelineView from './TimelineView';
 import MapView from './MapView';
 import ActivityForm from './ActivityForm';
+import ErrorBoundary from './ErrorBoundary';
 import { getAIPersonalizedSuggestions, magicParseActivities } from '../services/geminiService';
 
 // Utilities
@@ -288,15 +289,25 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
                        <X className="w-4 h-4" />
                     </button>
                  </div>
-                 <ActivityForm 
-                    initialData={activityFormData}
-                    tripDestination={trip.destination}
-                    onSubmit={(data) => {
-                       setActivityFormData(data); 
-                       executeActivitySave(data); 
-                    }}
-                    onCancel={() => setShowQuickAdd(false)}
-                 />
+                 <ErrorBoundary fallback={
+                   <div className="p-6 text-center bg-sand-50 rounded-2xl border border-sand-200">
+                      <div className="w-12 h-12 bg-terracotta-100 rounded-full flex items-center justify-center mx-auto mb-3 text-terracotta-600">
+                          <AlertCircle className="w-6 h-6" />
+                      </div>
+                      <p className="text-ocean-900 font-bold mb-1">Could not load form</p>
+                      <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-white border border-sand-200 rounded-lg text-xs font-bold text-ocean-700 hover:bg-sand-50">Reload</button>
+                   </div>
+                 }>
+                   <ActivityForm 
+                      initialData={activityFormData}
+                      tripDestination={trip.destination}
+                      onSubmit={(data) => {
+                         setActivityFormData(data); 
+                         executeActivitySave(data); 
+                      }}
+                      onCancel={() => setShowQuickAdd(false)}
+                   />
+                 </ErrorBoundary>
               </div>
            </div>
 
@@ -454,16 +465,26 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
                 <h2 className="text-xl font-black text-ocean-900">Edit Activity</h2>
                 <button onClick={() => { setShowEditItemModal(false); setEditingItemId(null); }} className="p-2 bg-sand-100 rounded-full text-sand-400 hover:text-ocean-900 transition-colors"><X className="w-5 h-5" /></button>
              </div>
-             <ActivityForm 
-                initialData={activityFormData}
-                tripDestination={trip.destination}
-                isEditing={true}
-                onSubmit={(data) => {
-                   setActivityFormData(data);
-                   executeActivitySave(data);
-                }}
-                onCancel={() => { setShowEditItemModal(false); setEditingItemId(null); }}
-             />
+             <ErrorBoundary fallback={
+               <div className="p-6 text-center bg-sand-50 rounded-2xl border border-sand-200">
+                  <div className="w-12 h-12 bg-terracotta-100 rounded-full flex items-center justify-center mx-auto mb-3 text-terracotta-600">
+                      <AlertCircle className="w-6 h-6" />
+                  </div>
+                  <p className="text-ocean-900 font-bold mb-1">Could not load form</p>
+                  <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-white border border-sand-200 rounded-lg text-xs font-bold text-ocean-700 hover:bg-sand-50">Reload</button>
+               </div>
+             }>
+               <ActivityForm 
+                  initialData={activityFormData}
+                  tripDestination={trip.destination}
+                  isEditing={true}
+                  onSubmit={(data) => {
+                     setActivityFormData(data);
+                     executeActivitySave(data);
+                  }}
+                  onCancel={() => { setShowEditItemModal(false); setEditingItemId(null); }}
+               />
+             </ErrorBoundary>
           </div>
         </div>
       )}

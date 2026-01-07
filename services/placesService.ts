@@ -103,8 +103,10 @@ export const searchPlacesByType = async (
     }
 
     const data: TextSearchResponse = await response.json();
+    console.log(`Places API results: ${data.places?.length || 0} found`);
     
-    if (!data.places || data.places.length === 0) {
+    if (!data.places || !Array.isArray(data.places) || data.places.length === 0) {
+      console.log("No places found in primary search, trying fallback...");
       // Fallback: try without type restriction
       // We create a new controller for the fallback request
       const fallbackController = new AbortController();
@@ -130,31 +132,38 @@ export const searchPlacesByType = async (
 
         if (!fallbackResponse.ok) {
            console.error(`Places API Fallback error: ${fallbackResponse.status}`);
-           throw new Error(`Places API Fallback failed with status ${fallbackResponse.status}`);
+           return []; // Fail gracefully with empty results instead of throwing
         }
 
         const fallbackData: TextSearchResponse = await fallbackResponse.json();
-        if (!fallbackData.places) return []; // Valid "no results"
+        console.log(`Places API Fallback results: ${fallbackData.places?.length || 0} found`);
+        if (!fallbackData.places || !Array.isArray(fallbackData.places)) return []; // Valid "no results"
         data.places = fallbackData.places;
       } catch (fallbackError) {
         clearTimeout(fallbackTimeoutId);
         console.error("Places API fallback search error:", fallbackError);
-        throw fallbackError;
+        return []; // Fail gracefully
       }
     }
     
     // Transform to PlaceSuggestion format
-    return data.places.map(place => ({
-      title: place.displayName?.text || 'Unknown Place',
-      location: place.formattedAddress || location,
-      description: place.editorialSummary?.text,
-      lat: place.location?.latitude || 0,
-      lng: place.location?.longitude || 0,
-      imageUrl: place.photos?.[0]?.name ? getPhotoUrl(place.photos[0].name, 400) : undefined,
-      rating: place.rating,
-      priceRange: place.priceLevel ? PRICE_LEVEL_MAP[place.priceLevel] : undefined,
-      googleMapsUrl: place.googleMapsUri
-    }));
+    const results = (data.places || []).map(place => {
+      if (!place) return null;
+      const suggestion: PlaceSuggestion = {
+        title: place.displayName?.text || 'Unknown Place',
+        location: place.formattedAddress || location,
+        description: place.editorialSummary?.text,
+        lat: place.location?.latitude || 0,
+        lng: place.location?.longitude || 0,
+        imageUrl: place.photos?.[0]?.name ? getPhotoUrl(place.photos[0].name, 400) : undefined,
+        rating: place.rating,
+        priceRange: place.priceLevel ? (PRICE_LEVEL_MAP[place.priceLevel] || undefined) : undefined,
+        googleMapsUrl: place.googleMapsUri
+      };
+      return suggestion;
+    });
+
+    return results.filter((s): s is PlaceSuggestion => s !== null);
   } catch (error) {
     clearTimeout(timeoutId);
     if (error instanceof Error && error.name === 'AbortError') {
