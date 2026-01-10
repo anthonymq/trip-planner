@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c8ee6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#015a9f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eb6b42;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d84f28;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Rounded square background -->
+  <rect x="16" y="16" width="480" height="480" rx="96" ry="96" fill="url(#bgGrad)"/>
+  <!-- Globe/Earth circle -->
+  <circle cx="256" cy="240" r="140" fill="none" stroke="#ffffff" stroke-width="16" opacity="0.9"/>
+  <!-- Globe latitude lines -->
+  <ellipse cx="256" cy="240" rx="140" ry="50" fill="none" stroke="#ffffff" stroke-width="8" opacity="0.6"/>
+  <ellipse cx="256" cy="240" rx="140" ry="100" fill="none" stroke="#ffffff" stroke-width="8" opacity="0.6"/>
+  <!-- Globe longitude line -->
+  <line x1="256" y1="100" x2="256" y2="380" stroke="#ffffff" stroke-width="8" opacity="0.6"/>
+  <!-- Airplane -->
+  <g transform="translate(256, 240) rotate(-30)">
+    <path d="M0,-60 L20,-20 L80,-10 L80,0 L20,15 L10,60 L0,50 L-10,60 L-20,15 L-80,0 L-80,-10 L-20,-20 Z" 
+          fill="url(#accentGrad)" stroke="#ffffff" stroke-width="4"/>
+  </g>
+  <!-- Location pin -->
+  <g transform="translate(340, 160)">
+    <path d="M0,0 C-20,0 -36,16 -36,36 C-36,63 0,90 0,90 C0,90 36,63 36,36 C36,16 20,0 0,0 Z" 
+          fill="url(#accentGrad)" stroke="#ffffff" stroke-width="4"/>
+    <circle cx="0" cy="36" r="14" fill="#ffffff"/>
+  </g>
+  <!-- WeTravel text at bottom -->
+  <text x="256" y="445" font-family="Arial, sans-serif" font-size="56" font-weight="bold" 
+        fill="#ffffff" text-anchor="middle" opacity="0.95">WeTravel</text>
+</svg>
