@@ -240,20 +240,20 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-cream relative">
+    <div className="flex-1 flex flex-col h-full bg-cream dark:bg-slate-900 relative transition-colors duration-300">
       {/* Mobile Tab Navigation */}
-      <div className="lg:hidden px-4 py-2 bg-cream sticky top-0 z-40 border-b border-sand-200">
-        <div className="flex p-1.5 bg-sand-200/50 rounded-xl mb-3">
-          <button onClick={() => setActiveTab('timeline')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'timeline' ? 'bg-white shadow-sm text-ocean-600' : 'text-sand-500'}`}>Timeline</button>
-          <button onClick={() => setActiveTab('map')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'map' ? 'bg-white shadow-sm text-ocean-600' : 'text-sand-500'}`}>Map</button>
-          <button onClick={() => setActiveTab('ai')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'ai' ? 'bg-white shadow-sm text-terracotta-600' : 'text-sand-500'}`}>Ideas</button>
+      <div className="lg:hidden px-4 py-2 bg-cream dark:bg-slate-900 sticky top-0 z-40 border-b border-sand-200 dark:border-slate-700">
+        <div className="flex p-1.5 bg-sand-200/50 dark:bg-slate-800 rounded-xl mb-3">
+          <button onClick={() => setActiveTab('timeline')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'timeline' ? 'bg-white dark:bg-slate-700 shadow-sm text-ocean-600 dark:text-ocean-400' : 'text-sand-500 dark:text-slate-400'}`}>Timeline</button>
+          <button onClick={() => setActiveTab('map')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'map' ? 'bg-white dark:bg-slate-700 shadow-sm text-ocean-600 dark:text-ocean-400' : 'text-sand-500 dark:text-slate-400'}`}>Map</button>
+          <button onClick={() => setActiveTab('ai')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'ai' ? 'bg-white dark:bg-slate-700 shadow-sm text-terracotta-600 dark:text-terracotta-400' : 'text-sand-500 dark:text-slate-400'}`}>Ideas</button>
         </div>
         
         <div className="flex gap-2">
           <button onClick={() => setShowMagicModal(true)} className="flex-1 py-3 bg-terracotta-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-md hover:bg-terracotta-600 active:scale-95 transition-all">
             <Wand2 className="w-3 h-3" /> Magic Add
           </button>
-          <button onClick={() => handleOpenQuickAdd()} className="flex-1 py-3 bg-white text-ocean-800 border border-sand-200 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-sand-50 active:scale-95 transition-all">
+          <button onClick={() => handleOpenQuickAdd()} className="flex-1 py-3 bg-white dark:bg-slate-800 text-ocean-800 dark:text-sand-100 border border-sand-200 dark:border-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-sand-50 dark:hover:bg-slate-700 active:scale-95 transition-all">
             <Plus className="w-3 h-3" /> Quick Add
           </button>
         </div>
@@ -264,10 +264,10 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
         <button onClick={() => setShowMagicModal(true)} className="py-2.5 px-4 bg-terracotta-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-terracotta-500/20 hover:bg-terracotta-600 active:scale-95 transition-all">
            <Wand2 className="w-3 h-3" /> Magic Add
         </button>
-        <button onClick={() => handleOpenQuickAdd()} className="py-2.5 px-4 bg-white text-ocean-800 border border-sand-200 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-sand-50 active:scale-95 transition-all shadow-sm">
+        <button onClick={() => handleOpenQuickAdd()} className="py-2.5 px-4 bg-white dark:bg-slate-800 text-ocean-800 dark:text-sand-100 border border-sand-200 dark:border-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-sand-50 dark:hover:bg-slate-700 active:scale-95 transition-all shadow-sm">
            <Plus className="w-3 h-3" /> Quick Add
         </button>
-        <button onClick={() => setShowSuggestionsPanel(!showSuggestionsPanel)} className={`py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 border transition-all ${showSuggestionsPanel ? 'bg-terracotta-100 text-terracotta-600 border-terracotta-200' : 'bg-white text-ocean-600 border-sand-200 hover:bg-sand-50'}`}>
+        <button onClick={() => setShowSuggestionsPanel(!showSuggestionsPanel)} className={`py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 border transition-all ${showSuggestionsPanel ? 'bg-terracotta-100 dark:bg-terracotta-900/30 text-terracotta-600 dark:text-terracotta-400 border-terracotta-200 dark:border-terracotta-700' : 'bg-white dark:bg-slate-800 text-ocean-600 dark:text-ocean-400 border-sand-200 dark:border-slate-600 hover:bg-sand-50 dark:hover:bg-slate-700'}`}>
            <Sparkles className="w-3 h-3" /> Suggestions
         </button>
       </div>
@@ -276,26 +276,26 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
       <div className="flex-1 relative overflow-hidden lg:grid lg:grid-cols-[2fr_3fr]">
         
         {/* Timeline Column */}
-        <div className={`absolute inset-0 lg:static lg:h-full bg-cream transition-all duration-300 z-10 flex flex-col ${activeTab === 'timeline' ? 'opacity-100 translate-x-0' : 'lg:opacity-100 lg:translate-x-0 opacity-0 -translate-x-full pointer-events-none lg:pointer-events-auto'}`}>
+        <div className={`absolute inset-0 lg:static lg:h-full bg-cream dark:bg-slate-900 transition-all duration-300 z-10 flex flex-col ${activeTab === 'timeline' ? 'opacity-100 translate-x-0' : 'lg:opacity-100 lg:translate-x-0 opacity-0 -translate-x-full pointer-events-none lg:pointer-events-auto'}`}>
            
            {/* Inline Quick Add Panel */}
-           <div className={`transition-all duration-500 ease-in-out overflow-hidden bg-white border-b border-sand-200 shadow-xl z-20 ${showQuickAdd ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}`}>
-              <div className="max-h-[80vh] overflow-y-auto p-4 sm:p-6 bg-cream/50">
+           <div className={`transition-all duration-500 ease-in-out overflow-hidden bg-white dark:bg-slate-800 border-b border-sand-200 dark:border-slate-700 shadow-xl z-20 ${showQuickAdd ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'}`}>
+              <div className="max-h-[80vh] overflow-y-auto p-4 sm:p-6 bg-cream/50 dark:bg-slate-900/50">
                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-serif font-bold text-lg text-ocean-900 flex items-center gap-2">
+                    <h3 className="font-serif font-bold text-lg text-ocean-900 dark:text-sand-100 flex items-center gap-2">
                        <Plus className="w-4 h-4 text-terracotta-500" /> Quick Add
                     </h3>
-                    <button onClick={() => setShowQuickAdd(false)} className="p-2 hover:bg-sand-100 rounded-full text-sand-400 transition-colors">
+                    <button onClick={() => setShowQuickAdd(false)} className="p-2 hover:bg-sand-100 dark:hover:bg-slate-700 rounded-full text-sand-400 dark:text-slate-500 transition-colors">
                        <X className="w-4 h-4" />
                     </button>
                  </div>
                  <ErrorBoundary fallback={
-                   <div className="p-6 text-center bg-sand-50 rounded-2xl border border-sand-200">
-                      <div className="w-12 h-12 bg-terracotta-100 rounded-full flex items-center justify-center mx-auto mb-3 text-terracotta-600">
+                   <div className="p-6 text-center bg-sand-50 dark:bg-slate-800 rounded-2xl border border-sand-200 dark:border-slate-600">
+                      <div className="w-12 h-12 bg-terracotta-100 dark:bg-terracotta-900/30 rounded-full flex items-center justify-center mx-auto mb-3 text-terracotta-600 dark:text-terracotta-400">
                           <AlertCircle className="w-6 h-6" />
                       </div>
-                      <p className="text-ocean-900 font-bold mb-1">Could not load form</p>
-                      <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-white border border-sand-200 rounded-lg text-xs font-bold text-ocean-700 hover:bg-sand-50">Reload</button>
+                      <p className="text-ocean-900 dark:text-sand-100 font-bold mb-1">Could not load form</p>
+                      <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-white dark:bg-slate-700 border border-sand-200 dark:border-slate-600 rounded-lg text-xs font-bold text-ocean-700 dark:text-sand-200 hover:bg-sand-50 dark:hover:bg-slate-600">Reload</button>
                    </div>
                  }>
                    <ActivityForm 
@@ -332,7 +332,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
         </div>
 
         {/* Map Column */}
-        <div className={`absolute inset-0 lg:sticky lg:top-0 lg:h-[calc(100vh-5rem)] transition-all duration-300 z-20 bg-sand-100 lg:border-l lg:border-sand-200 ${activeTab === 'map' ? 'opacity-100 translate-x-0' : 'lg:opacity-100 lg:translate-x-0 opacity-0 translate-x-full pointer-events-none lg:pointer-events-auto'}`}>
+        <div className={`absolute inset-0 lg:sticky lg:top-0 lg:h-[calc(100vh-5rem)] transition-all duration-300 z-20 bg-sand-100 dark:bg-slate-800 lg:border-l lg:border-sand-200 dark:lg:border-slate-700 ${activeTab === 'map' ? 'opacity-100 translate-x-0' : 'lg:opacity-100 lg:translate-x-0 opacity-0 translate-x-full pointer-events-none lg:pointer-events-auto'}`}>
             <MapView 
               items={trip.itinerary} 
               activeId={activeItemId} 
@@ -342,12 +342,12 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
             />
             
             {/* Desktop Suggestions Panel (Overlay) */}
-            <div className={`hidden lg:block absolute top-4 right-4 bottom-4 w-96 bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/20 transform transition-all duration-500 ease-out z-30 flex flex-col overflow-hidden ${showSuggestionsPanel ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0'}`}>
-               <div className="p-4 border-b border-sand-100 flex items-center justify-between bg-white/50">
-                  <h3 className="font-serif font-bold text-lg text-ocean-900 flex items-center gap-2">
+            <div className={`hidden lg:block absolute top-4 right-4 bottom-4 w-96 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/20 dark:border-slate-700 transform transition-all duration-500 ease-out z-30 flex flex-col overflow-hidden ${showSuggestionsPanel ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0'}`}>
+               <div className="p-4 border-b border-sand-100 dark:border-slate-700 flex items-center justify-between bg-white/50 dark:bg-slate-800/50">
+                  <h3 className="font-serif font-bold text-lg text-ocean-900 dark:text-sand-100 flex items-center gap-2">
                      <Sparkles className="w-4 h-4 text-terracotta-500" /> AI Suggestions
                   </h3>
-                  <button onClick={() => setShowSuggestionsPanel(false)} className="p-2 hover:bg-sand-100 rounded-full text-sand-500 transition-colors">
+                  <button onClick={() => setShowSuggestionsPanel(false)} className="p-2 hover:bg-sand-100 dark:hover:bg-slate-700 rounded-full text-sand-500 dark:text-slate-400 transition-colors">
                      <X className="w-4 h-4" />
                   </button>
                </div>
@@ -363,7 +363,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
         </div>
 
         {/* Mobile Suggestions Tab */}
-        <div className={`lg:hidden absolute inset-0 overflow-y-auto bg-cream transition-all duration-300 z-30 ${activeTab === 'ai' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className={`lg:hidden absolute inset-0 overflow-y-auto bg-cream dark:bg-slate-900 transition-all duration-300 z-30 ${activeTab === 'ai' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
            <AISuggestionsView 
              destination={trip.destination} 
              suggestions={trip.suggestions || []} 
@@ -376,22 +376,22 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
       {/* --- MODALS --- */}
 
       {showMagicModal && (
-        <div className="fixed inset-0 z-[120] bg-ocean-900/60 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
-           <div className="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl transition-all border border-white/20">
+        <div className="fixed inset-0 z-[120] bg-ocean-900/60 dark:bg-black/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-300">
+           <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl transition-all border border-white/20 dark:border-slate-700">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-xl font-black text-ocean-900 flex items-center gap-2">
+                  <h2 className="text-xl font-black text-ocean-900 dark:text-sand-100 flex items-center gap-2">
                     <Wand2 className="w-5 h-5 text-terracotta-500" /> Magic Add
                   </h2>
-                  <p className="text-[10px] text-sand-400 font-bold uppercase tracking-widest mt-1">Paste your messy itinerary below</p>
+                  <p className="text-[10px] text-sand-400 dark:text-slate-500 font-bold uppercase tracking-widest mt-1">Paste your messy itinerary below</p>
                 </div>
-                <button onClick={() => { setShowMagicModal(false); setMagicResults([]); setMagicError(null); }} className="p-2 bg-sand-100 rounded-full text-sand-400 hover:text-ocean-900 transition-colors"><X className="w-5 h-5" /></button>
+                <button onClick={() => { setShowMagicModal(false); setMagicResults([]); setMagicError(null); }} className="p-2 bg-sand-100 dark:bg-slate-700 rounded-full text-sand-400 dark:text-slate-400 hover:text-ocean-900 dark:hover:text-sand-100 transition-colors"><X className="w-5 h-5" /></button>
               </div>
 
               {magicResults.length === 0 ? (
                 <div className="space-y-4">
                   {magicError && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-xl text-xs font-bold border border-red-100 flex items-center gap-2 animate-in slide-in-from-top-2">
+                    <div className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-3 rounded-xl text-xs font-bold border border-red-100 dark:border-red-800 flex items-center gap-2 animate-in slide-in-from-top-2">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       {magicError}
                     </div>
@@ -400,7 +400,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
                      value={magicText}
                      onChange={(e) => setMagicText(e.target.value)}
                      placeholder="Paste anything... 'Dinner at 8pm at Pizza Hut', 'Visiting the Louvre tomorrow morning', or even a whole email from a tour operator."
-                     className="w-full h-64 bg-sand-50 notepad-bg border-2 border-sand-200 rounded-3xl p-5 pt-6 text-sm font-medium focus:border-terracotta-500 focus:bg-cream transition-all outline-none resize-none text-ocean-900 placeholder:text-sand-400 shadow-inner"
+                     className="w-full h-64 bg-sand-50 dark:bg-slate-700 notepad-bg border-2 border-sand-200 dark:border-slate-600 rounded-3xl p-5 pt-6 text-sm font-medium focus:border-terracotta-500 focus:bg-cream dark:focus:bg-slate-600 transition-all outline-none resize-none text-ocean-900 dark:text-sand-100 placeholder:text-sand-400 dark:placeholder:text-slate-500 shadow-inner"
                    />
                   <button 
                     disabled={!magicText.trim() || isMagicParsing}
@@ -423,19 +423,19 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
                           else next.add(idx);
                           setSelectedMagicIndices(next);
                         }}
-                        className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${selectedMagicIndices.has(idx) ? 'border-terracotta-500 bg-terracotta-50' : 'border-sand-100 bg-sand-50/50 opacity-60'}`}
+                        className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${selectedMagicIndices.has(idx) ? 'border-terracotta-500 bg-terracotta-50 dark:bg-terracotta-900/30' : 'border-sand-100 dark:border-slate-600 bg-sand-50/50 dark:bg-slate-700/50 opacity-60'}`}
                       >
                         <div className="flex items-center justify-between mb-2">
                            <div className="flex items-center gap-2">
-                             <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-terracotta-500 shadow-sm border border-sand-100">
+                             <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-600 flex items-center justify-center text-terracotta-500 shadow-sm border border-sand-100 dark:border-slate-500">
                                {item.type === 'restaurant' ? <Utensils className="w-4 h-4" /> : item.type === 'hotel' ? <Building2 className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
                              </div>
                              <span className="text-[10px] font-black uppercase text-terracotta-400 tracking-wider">{item.type}</span>
                            </div>
-                           {selectedMagicIndices.has(idx) ? <CheckCircle2 className="w-5 h-5 text-terracotta-500" /> : <div className="w-5 h-5 rounded-full border-2 border-sand-200" />}
+                           {selectedMagicIndices.has(idx) ? <CheckCircle2 className="w-5 h-5 text-terracotta-500" /> : <div className="w-5 h-5 rounded-full border-2 border-sand-200 dark:border-slate-500" />}
                         </div>
-                        <h4 className="font-bold text-ocean-900 leading-tight">{item.title}</h4>
-                        <div className="flex items-center gap-3 mt-2 text-[10px] font-bold text-sand-500">
+                        <h4 className="font-bold text-ocean-900 dark:text-sand-100 leading-tight">{item.title}</h4>
+                        <div className="flex items-center gap-3 mt-2 text-[10px] font-bold text-sand-500 dark:text-slate-400">
                           <div className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(item.startTime || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                           <div className="flex items-center gap-1 truncate"><MapPin className="w-3 h-3 shrink-0" /> {item.location}</div>
                         </div>
@@ -443,7 +443,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
                     ))}
                   </div>
                   <div className="pt-6 flex gap-3">
-                    <button onClick={() => setMagicResults([])} className="flex-1 py-4 font-black text-xs uppercase tracking-widest text-sand-400 hover:bg-sand-50 rounded-2xl transition-colors">Reset</button>
+                    <button onClick={() => setMagicResults([])} className="flex-1 py-4 font-black text-xs uppercase tracking-widest text-sand-400 dark:text-slate-500 hover:bg-sand-50 dark:hover:bg-slate-700 rounded-2xl transition-colors">Reset</button>
                     <button 
                       onClick={handleAddMagicResults}
                       disabled={selectedMagicIndices.size === 0}
@@ -459,19 +459,19 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
       )}
 
       {showEditItemModal && (
-        <div className="fixed inset-0 z-[110] bg-ocean-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
-          <div className="bg-white w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="fixed inset-0 z-[110] bg-ocean-900/60 dark:bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 animate-in slide-in-from-bottom duration-300 max-h-[90vh] overflow-y-auto shadow-2xl">
              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-black text-ocean-900">Edit Activity</h2>
-                <button onClick={() => { setShowEditItemModal(false); setEditingItemId(null); }} className="p-2 bg-sand-100 rounded-full text-sand-400 hover:text-ocean-900 transition-colors"><X className="w-5 h-5" /></button>
+                <h2 className="text-xl font-black text-ocean-900 dark:text-sand-100">Edit Activity</h2>
+                <button onClick={() => { setShowEditItemModal(false); setEditingItemId(null); }} className="p-2 bg-sand-100 dark:bg-slate-700 rounded-full text-sand-400 dark:text-slate-400 hover:text-ocean-900 dark:hover:text-sand-100 transition-colors"><X className="w-5 h-5" /></button>
              </div>
              <ErrorBoundary fallback={
-               <div className="p-6 text-center bg-sand-50 rounded-2xl border border-sand-200">
-                  <div className="w-12 h-12 bg-terracotta-100 rounded-full flex items-center justify-center mx-auto mb-3 text-terracotta-600">
+               <div className="p-6 text-center bg-sand-50 dark:bg-slate-700 rounded-2xl border border-sand-200 dark:border-slate-600">
+                  <div className="w-12 h-12 bg-terracotta-100 dark:bg-terracotta-900/30 rounded-full flex items-center justify-center mx-auto mb-3 text-terracotta-600 dark:text-terracotta-400">
                       <AlertCircle className="w-6 h-6" />
                   </div>
-                  <p className="text-ocean-900 font-bold mb-1">Could not load form</p>
-                  <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-white border border-sand-200 rounded-lg text-xs font-bold text-ocean-700 hover:bg-sand-50">Reload</button>
+                  <p className="text-ocean-900 dark:text-sand-100 font-bold mb-1">Could not load form</p>
+                  <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-white dark:bg-slate-600 border border-sand-200 dark:border-slate-500 rounded-lg text-xs font-bold text-ocean-700 dark:text-sand-200 hover:bg-sand-50 dark:hover:bg-slate-500">Reload</button>
                </div>
              }>
                <ActivityForm 
@@ -494,7 +494,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
 
 // Skeleton Loader Component
 const SuggestionSkeleton = () => (
-  <div className="bg-white rounded-[2rem] overflow-hidden border border-sand-100">
+  <div className="bg-white dark:bg-slate-800 rounded-[2rem] overflow-hidden border border-sand-100 dark:border-slate-700">
     <div className="h-48 w-full skeleton" />
     <div className="p-5 space-y-3">
       <div className="h-6 w-3/4 skeleton rounded-lg" />
@@ -525,13 +525,13 @@ const AISuggestionsView: React.FC<AISuggestionsViewProps> = ({ destination, sugg
   return (
     <div className="p-4 pb-20 lg:pb-4 space-y-6">
       <div className="flex justify-between items-center px-2">
-        <p className="text-[10px] font-black text-sand-400 uppercase tracking-widest">
+        <p className="text-[10px] font-black text-sand-400 dark:text-slate-500 uppercase tracking-widest">
           {suggestions.length} Ideas for {destination}
         </p>
         <button 
           onClick={onRefresh}
           disabled={isLoading} 
-          className="flex items-center gap-2 px-3 py-2 bg-white border border-sand-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-ocean-600 hover:bg-sand-50 transition-all disabled:opacity-50"
+          className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-700 border border-sand-200 dark:border-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest text-ocean-600 dark:text-ocean-400 hover:bg-sand-50 dark:hover:bg-slate-600 transition-all disabled:opacity-50"
         >
           <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
           {isLoading ? 'Refreshing...' : 'Refresh'}
@@ -540,8 +540,8 @@ const AISuggestionsView: React.FC<AISuggestionsViewProps> = ({ destination, sugg
 
       {suggestions.length === 0 && !isLoading && (
         <div className="text-center py-12 px-6">
-          <Sparkles className="w-12 h-12 text-sand-300 mx-auto mb-4" />
-          <p className="text-sand-500 font-medium">No suggestions yet.</p>
+          <Sparkles className="w-12 h-12 text-sand-300 dark:text-slate-600 mx-auto mb-4" />
+          <p className="text-sand-500 dark:text-slate-400 font-medium">No suggestions yet.</p>
           <button 
             onClick={onRefresh}
             className="mt-4 px-6 py-3 bg-terracotta-500 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-terracotta-600 transition-colors"
@@ -552,7 +552,7 @@ const AISuggestionsView: React.FC<AISuggestionsViewProps> = ({ destination, sugg
       )}
 
       {suggestions.map((s, idx) => (
-        <div key={idx} className="bg-white rounded-[2rem] border border-sand-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
+        <div key={idx} className="bg-white dark:bg-slate-800 rounded-[2rem] border border-sand-100 dark:border-slate-700 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden">
           <div className="h-48 w-full overflow-hidden relative">
             <ImageWithFallback 
               src={s.imageUrl} 
@@ -577,21 +577,21 @@ const AISuggestionsView: React.FC<AISuggestionsViewProps> = ({ destination, sugg
             </div>
           </div>
           <div className="p-5">
-            <h4 className="font-black text-ocean-900 text-lg mb-2 leading-tight">{s.title}</h4>
-            <div className="flex items-center gap-2 mb-3 text-sand-500">
+            <h4 className="font-black text-ocean-900 dark:text-sand-100 text-lg mb-2 leading-tight">{s.title}</h4>
+            <div className="flex items-center gap-2 mb-3 text-sand-500 dark:text-slate-400">
               <MapPin className="w-3 h-3 text-terracotta-400" />
               <p className="text-[11px] font-bold">{s.location}</p>
             </div>
-            <p className="text-sm text-sand-600 leading-relaxed mb-4 line-clamp-3">{s.description}</p>
-            <div className="bg-terracotta-50/50 rounded-xl p-3 mb-4 border border-terracotta-100/50">
-              <p className="text-[10px] font-black text-terracotta-600 uppercase mb-1 tracking-widest">Why we love it</p>
-              <p className="text-xs text-terracotta-800/80 italic leading-relaxed">"{s.reason}"</p>
+            <p className="text-sm text-sand-600 dark:text-slate-400 leading-relaxed mb-4 line-clamp-3">{s.description}</p>
+            <div className="bg-terracotta-50/50 dark:bg-terracotta-900/20 rounded-xl p-3 mb-4 border border-terracotta-100/50 dark:border-terracotta-800/30">
+              <p className="text-[10px] font-black text-terracotta-600 dark:text-terracotta-400 uppercase mb-1 tracking-widest">Why we love it</p>
+              <p className="text-xs text-terracotta-800/80 dark:text-terracotta-300/80 italic leading-relaxed">"{s.reason}"</p>
             </div>
             <a 
               href={s.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.title} ${s.location}`)}`}
               target="_blank" 
               rel="noopener noreferrer" 
-              className="w-full flex items-center justify-center gap-2 py-3 bg-white border-2 border-sand-100 rounded-xl text-xs font-black text-ocean-800 hover:bg-ocean-50 hover:border-ocean-200 transition-all shadow-sm uppercase tracking-widest group-hover:bg-ocean-600 group-hover:text-white group-hover:border-ocean-600"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-white dark:bg-slate-700 border-2 border-sand-100 dark:border-slate-600 rounded-xl text-xs font-black text-ocean-800 dark:text-sand-200 hover:bg-ocean-50 dark:hover:bg-slate-600 hover:border-ocean-200 dark:hover:border-ocean-700 transition-all shadow-sm uppercase tracking-widest group-hover:bg-ocean-600 group-hover:text-white group-hover:border-ocean-600"
             >
               <ExternalLink className="w-4 h-4" /> VIEW ON MAPS
             </a>
