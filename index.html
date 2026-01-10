@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
@@ -60,6 +61,11 @@
         body {
             font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
             background-color: #fffef8;
+            transition: background-color 0.3s ease;
+        }
+        .dark body,
+        html.dark body {
+            background-color: #0f172a;
         }
         .font-serif {
             font-family: 'Playfair Display', Georgia, serif;
@@ -77,6 +83,16 @@
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #c9b088;
+        }
+        /* Dark mode scrollbar */
+        .dark ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
         }
         /* Leaflet custom styling */
         .leaflet-container {
@@ -98,6 +114,10 @@
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
+        .dark .skeleton {
+            background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+            background-size: 200% 100%;
+        }
         /* Notepad lines background */
         .notepad-bg {
             background-image: repeating-linear-gradient(
@@ -107,6 +127,14 @@
                 #e8dcc8 28px
             );
             background-position: 0 8px;
+        }
+        .dark .notepad-bg {
+            background-image: repeating-linear-gradient(
+                transparent,
+                transparent 27px,
+                #475569 27px,
+                #475569 28px
+            );
         }
         /* Parallax hover effect */
         .parallax-img {
@@ -140,7 +168,7 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/trip-planner/assets/index-8EYLSa_u.js"></script>
+  <script type="module" crossorigin src="/trip-planner/assets/index-BTFmw60Y.js"></script>
 <link rel="manifest" href="/trip-planner/manifest.webmanifest"></head>
 <body>
     <div id="root"></div>
