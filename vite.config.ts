@@ -21,12 +21,12 @@ export default defineConfig(({ mode }) => {
         react(),
         VitePWA({
           registerType: 'prompt',
-          includeAssets: ['icon.svg'],
+          includeAssets: ['favicon.ico', 'favicon.svg', 'icon.svg', 'apple-touch-icon-180x180.png'],
           manifest: {
-            name: 'WanderList Trip Planner',
-            short_name: 'WanderList',
-            description: 'AI-powered travel planner for your next adventure',
-            theme_color: '#FDFCF8', // bg-cream
+            name: 'WeTravel',
+            short_name: 'WeTravel',
+            description: 'AI-powered travel companion for planning your adventures',
+            theme_color: '#eb6b42', // terracotta-500
             background_color: '#FDFCF8',
             display: 'standalone',
             orientation: 'portrait',
@@ -35,10 +35,25 @@ export default defineConfig(({ mode }) => {
             id: basePath,
             icons: [
               {
-                src: 'icon.svg',
-                sizes: '192x192 512x512',
-                type: 'image/svg+xml',
-                purpose: 'any maskable'
+                src: 'pwa-64x64.png',
+                sizes: '64x64',
+                type: 'image/png'
+              },
+              {
+                src: 'pwa-192x192.png',
+                sizes: '192x192',
+                type: 'image/png'
+              },
+              {
+                src: 'pwa-512x512.png',
+                sizes: '512x512',
+                type: 'image/png'
+              },
+              {
+                src: 'maskable-icon-512x512.png',
+                sizes: '512x512',
+                type: 'image/png',
+                purpose: 'maskable'
               }
             ]
           },
