@@ -101,7 +101,7 @@ const App: React.FC = () => {
           ) : (
             <div className="flex items-center gap-2 animate-in fade-in duration-300">
               <div className="w-8 h-8 bg-terracotta-500 rounded-xl flex items-center justify-center shadow-lg shadow-terracotta-500/20"><Sparkles className="w-5 h-5 text-white" /></div>
-              <h1 className="text-xl font-serif font-bold text-ocean-900 dark:text-sand-50 tracking-tight">WanderList</h1>
+              <h1 className="text-xl font-serif font-bold text-ocean-900 dark:text-sand-50 tracking-tight">WeTravel</h1>
             </div>
           )}
           <ThemeToggle />
