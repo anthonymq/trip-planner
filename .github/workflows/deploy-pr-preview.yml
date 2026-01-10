@@ -1,0 +1,151 @@
+name: Deploy PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  deployments: write
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    environment:
+      name: pr-${{ github.event.pull_request.number }}
+      url: ${{ steps.deploy.outputs.preview_url }}
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+        if: hashFiles('package.json') != ''
+
+      - name: Install dependencies
+        run: npm ci
+        if: hashFiles('package.json') != ''
+
+      - name: Detect and build project
+        id: build
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          REPO_NAME=${{ github.event.repository.name }}
+          
+          if [ -f "package.json" ]; then
+            # Check for Vite config and set base path
+            if [ -f "vite.config.ts" ] || [ -f "vite.config.js" ]; then
+              export VITE_BASE_PATH="/$REPO_NAME/pr-$PR_NUMBER/"
+              # Build with base path for PR preview
+              npm run build -- --base="/$REPO_NAME/pr-$PR_NUMBER/" || npm run build
+            elif grep -q '"build"' package.json; then
+              npm run build
+            fi
+            
+            # Find build output
+            for dir in dist build out .next/out; do
+              if [ -d "$dir" ]; then
+                echo "output_dir=$dir" >> $GITHUB_OUTPUT
+                break
+              fi
+            done
+          fi
+          
+          # Default to current directory
+          if [ -z "$(grep output_dir $GITHUB_OUTPUT 2>/dev/null)" ]; then
+            echo "output_dir=." >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to GitHub Pages (PR subdirectory)
+        id: deploy
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          REPO_NAME=${{ github.event.repository.name }}
+          OWNER=${{ github.repository_owner }}
+          OUTPUT_DIR=${{ steps.build.outputs.output_dir }}
+          
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Clone gh-pages branch or create it
+          git clone --depth 1 --branch gh-pages "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages-dir 2>/dev/null || {
+            mkdir gh-pages-dir
+            cd gh-pages-dir
+            git init
+            git checkout -b gh-pages
+            echo "# GitHub Pages" > README.md
+            git add .
+            git commit -m "Initialize gh-pages branch"
+            cd ..
+          }
+          
+          # Create/update PR preview directory
+          rm -rf "gh-pages-dir/pr-$PR_NUMBER"
+          mkdir -p "gh-pages-dir/pr-$PR_NUMBER"
+          cp -r "$OUTPUT_DIR"/* "gh-pages-dir/pr-$PR_NUMBER/" 2>/dev/null || cp -r "$OUTPUT_DIR"/. "gh-pages-dir/pr-$PR_NUMBER/"
+          
+          # Commit and push
+          cd gh-pages-dir
+          git add .
+          git commit -m "Deploy PR #$PR_NUMBER preview" || echo "No changes to commit"
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages --force
+          
+          # Output preview URL
+          PREVIEW_URL="https://$OWNER.github.io/$REPO_NAME/pr-$PR_NUMBER/"
+          echo "preview_url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+          echo "Preview deployed to: $PREVIEW_URL"
+
+      - name: Comment PR with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const previewUrl = '${{ steps.deploy.outputs.preview_url }}';
+            
+            // Find existing preview comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+            
+            const botComment = comments.data.find(c => 
+              c.user.type === 'Bot' && c.body.includes('Preview Deployment')
+            );
+            
+            const body = `## 🚀 Preview Deployment
+            
+| Name | Link |
+|------|------|
+| **Preview URL** | [${previewUrl}](${previewUrl}) |
+| **Environment** | \`pr-${prNumber}\` |
+| **Commit** | \`${{ github.event.pull_request.head.sha }}\` |
+
+> Updated: ${new Date().toISOString()}`;
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body
+              });
+            }
