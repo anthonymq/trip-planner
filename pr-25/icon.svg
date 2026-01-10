@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c8ee6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#015a9f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eb6b42;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d84f28;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGradient)"/>
+  <!-- Globe lines for travel theme -->
+  <ellipse cx="256" cy="256" rx="160" ry="160" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="8"/>
+  <ellipse cx="256" cy="256" rx="80" ry="160" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="8"/>
+  <line x1="96" y1="256" x2="416" y2="256" stroke="rgba(255,255,255,0.2)" stroke-width="8"/>
+  <ellipse cx="256" cy="256" rx="160" ry="60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="8"/>
+  <!-- Airplane icon -->
+  <g transform="translate(256, 256) rotate(-45)">
+    <path d="M-20,-80 L20,-80 L20,0 L80,40 L80,60 L20,30 L20,60 L40,80 L40,100 L0,80 L-40,100 L-40,80 L-20,60 L-20,30 L-80,60 L-80,40 L-20,0 Z" 
+          fill="white" 
+          opacity="0.95"/>
+  </g>
+  <!-- Accent dot for departure -->
+  <circle cx="160" cy="320" r="24" fill="url(#accentGradient)"/>
+  <!-- Route arc -->
+  <path d="M175,305 Q256,200 340,280" fill="none" stroke="url(#accentGradient)" stroke-width="6" stroke-dasharray="12,8" stroke-linecap="round"/>
+</svg>
