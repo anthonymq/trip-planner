@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c8ee6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#015a9f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="planeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0f7ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGrad)"/>
+  <!-- Airplane icon -->
+  <g transform="translate(256, 256) rotate(-45) translate(-256, -256)">
+    <path fill="url(#planeGrad)" d="M416 192l-96-32-64-128h-32l32 128H160l-32-48H96l32 80-32 80h32l32-48h96l-32 128h32l64-128 96-32z" transform="translate(16, 48)"/>
+  </g>
+  <!-- Globe lines for travel theme -->
+  <ellipse cx="256" cy="256" rx="160" ry="160" fill="none" stroke="#ffffff" stroke-width="3" stroke-opacity="0.2"/>
+  <ellipse cx="256" cy="256" rx="80" ry="160" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.15"/>
+  <line x1="96" y1="256" x2="416" y2="256" stroke="#ffffff" stroke-width="2" stroke-opacity="0.15"/>
+</svg>
