@@ -23,9 +23,9 @@ export default defineConfig(({ mode }) => {
           registerType: 'prompt',
           includeAssets: ['icon.svg'],
           manifest: {
-            name: 'WanderList Trip Planner',
-            short_name: 'WanderList',
-            description: 'AI-powered travel planner for your next adventure',
+            name: 'WeTravel',
+            short_name: 'WeTravel',
+            description: 'Plan and organize your trips with AI-powered suggestions',
             theme_color: '#FDFCF8', // bg-cream
             background_color: '#FDFCF8',
             display: 'standalone',

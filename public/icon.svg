@@ -1,3 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#E67E22">
-  <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm0 464c-114.7 0-208-93.3-208-208S141.3 48 256 48s208 93.3 208 208-93.3 208-208 208zm-24-336h48v128h-48zm0 160h48v48h-48z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eb6b42"/>
+      <stop offset="100%" style="stop-color:#d84f28"/>
+    </linearGradient>
+    <linearGradient id="planeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#f0f7ff"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle with gradient -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGradient)"/>
+  
+  <!-- Subtle inner shadow -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+  
+  <!-- Stylized airplane -->
+  <g transform="translate(256, 256) rotate(-30) translate(-256, -256)">
+    <path d="M380 200 L420 180 L430 185 L400 220 L380 215 Z" fill="url(#planeGradient)"/>
+    <path d="M120 280 L380 200 L400 220 L180 340 L160 330 Z" fill="url(#planeGradient)"/>
+    <path d="M180 340 L200 380 L190 385 L160 350 Z" fill="url(#planeGradient)"/>
+    <path d="M120 280 L100 260 L110 255 L135 275 Z" fill="url(#planeGradient)"/>
+    <!-- Wing -->
+    <path d="M200 260 L280 320 L260 340 L170 290 Z" fill="rgba(255,255,255,0.85)"/>
+    <!-- Tail -->
+    <path d="M140 300 L165 310 L175 340 L150 330 Z" fill="rgba(255,255,255,0.9)"/>
+  </g>
+  
+  <!-- Flight path dotted arc -->
+  <path d="M130 350 Q180 200 350 150" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-dasharray="8,8" stroke-linecap="round"/>
+  
+  <!-- Small location pin -->
+  <g transform="translate(355, 140)">
+    <circle cx="0" cy="0" r="12" fill="#ffffff"/>
+    <circle cx="0" cy="0" r="5" fill="#eb6b42"/>
+  </g>
 </svg>
