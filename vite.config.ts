@@ -21,10 +21,10 @@ export default defineConfig(({ mode }) => {
         react(),
         VitePWA({
           registerType: 'prompt',
-          includeAssets: ['icon.svg'],
+          includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
           manifest: {
-            name: 'WanderList Trip Planner',
-            short_name: 'WanderList',
+            name: 'WeTravel',
+            short_name: 'WeTravel',
             description: 'AI-powered travel planner for your next adventure',
             theme_color: '#FDFCF8', // bg-cream
             background_color: '#FDFCF8',
@@ -35,10 +35,20 @@ export default defineConfig(({ mode }) => {
             id: basePath,
             icons: [
               {
-                src: 'icon.svg',
-                sizes: '192x192 512x512',
-                type: 'image/svg+xml',
-                purpose: 'any maskable'
+                src: 'pwa-192x192.png',
+                sizes: '192x192',
+                type: 'image/png'
+              },
+              {
+                src: 'pwa-512x512.png',
+                sizes: '512x512',
+                type: 'image/png'
+              },
+              {
+                src: 'pwa-512x512.png',
+                sizes: '512x512',
+                type: 'image/png',
+                purpose: 'maskable'
               }
             ]
           },
