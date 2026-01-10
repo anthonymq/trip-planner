@@ -21,10 +21,10 @@ export default defineConfig(({ mode }) => {
         react(),
         VitePWA({
           registerType: 'prompt',
-          includeAssets: ['icon.svg'],
+          includeAssets: ['icon.svg', 'favicon.svg'],
           manifest: {
-            name: 'WanderList Trip Planner',
-            short_name: 'WanderList',
+            name: 'WeTravel Trip Planner',
+            short_name: 'WeTravel',
             description: 'AI-powered travel planner for your next adventure',
             theme_color: '#FDFCF8', // bg-cream
             background_color: '#FDFCF8',
