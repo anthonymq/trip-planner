@@ -1,3 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#E67E22">
-  <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm0 464c-114.7 0-208-93.3-208-208S141.3 48 256 48s208 93.3 208 208-93.3 208-208 208zm-24-336h48v128h-48zm0 160h48v48h-48z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c8ee6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#015a9f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="planeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0f7ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGrad)"/>
+  <!-- Decorative ring -->
+  <circle cx="256" cy="256" r="200" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.2"/>
+  <!-- Globe lines for travel theme -->
+  <ellipse cx="256" cy="256" rx="140" ry="140" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.15"/>
+  <ellipse cx="256" cy="256" rx="70" ry="140" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.15"/>
+  <path d="M116 256 H396" stroke="#ffffff" stroke-width="2" stroke-opacity="0.15"/>
+  <!-- Airplane icon -->
+  <g transform="translate(256, 256) rotate(-45)">
+    <path d="M-20,-80 L20,-80 L20,-20 L80,40 L80,60 L20,20 L20,60 L40,80 L40,95 L0,75 L-40,95 L-40,80 L-20,60 L-20,20 L-80,60 L-80,40 L-20,-20 Z" 
+          fill="url(#planeGrad)" 
+          stroke="#ffffff" 
+          stroke-width="2"/>
+  </g>
+  <!-- Location pin accent -->
+  <g transform="translate(340, 340)">
+    <path d="M0,-35 C15,-35 25,-25 25,-12 C25,5 0,35 0,35 C0,35 -25,5 -25,-12 C-25,-25 -15,-35 0,-35 Z" 
+          fill="#eb6b42"/>
+    <circle cx="0" cy="-12" r="8" fill="#ffffff"/>
+  </g>
 </svg>
