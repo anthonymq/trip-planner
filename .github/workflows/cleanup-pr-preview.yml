@@ -1,0 +1,64 @@
+name: Cleanup PR Preview
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  deployments: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove PR preview from gh-pages
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Clone gh-pages branch
+          git clone --depth 1 --branch gh-pages "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages-dir 2>/dev/null || exit 0
+          
+          cd gh-pages-dir
+          
+          # Remove PR directory if it exists
+          if [ -d "pr-$PR_NUMBER" ]; then
+            rm -rf "pr-$PR_NUMBER"
+            git add .
+            git commit -m "Cleanup PR #$PR_NUMBER preview"
+            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages
+            echo "Removed preview for PR #$PR_NUMBER"
+          else
+            echo "No preview found for PR #$PR_NUMBER"
+          fi
+
+      - name: Delete PR environment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const envName = `pr-${prNumber}`;
+            
+            try {
+              // Get the environment
+              const { data: env } = await github.rest.repos.getEnvironment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                environment_name: envName
+              });
+              
+              // Delete the environment
+              await github.rest.repos.deleteAnEnvironment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                environment_name: envName
+              });
+              
+              console.log(`Deleted environment: ${envName}`);
+            } catch (error) {
+              console.log(`Environment ${envName} not found or already deleted`);
+            }
