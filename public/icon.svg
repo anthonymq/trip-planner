@@ -1,3 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#E67E22">
-  <path d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zm0 464c-114.7 0-208-93.3-208-208S141.3 48 256 48s208 93.3 208 208-93.3 208-208 208zm-24-336h48v128h-48zm0 160h48v48h-48z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="globeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#36aaf5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0070c4;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="planeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#eb6b42;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d84f28;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#globeGrad)"/>
+  
+  <!-- Globe latitude lines -->
+  <ellipse cx="256" cy="256" rx="200" ry="70" fill="none" stroke="#fff" stroke-width="8" opacity="0.3"/>
+  <ellipse cx="256" cy="256" rx="200" ry="140" fill="none" stroke="#fff" stroke-width="8" opacity="0.3"/>
+  
+  <!-- Globe longitude lines -->
+  <ellipse cx="256" cy="256" rx="70" ry="200" fill="none" stroke="#fff" stroke-width="8" opacity="0.3"/>
+  <line x1="56" y1="256" x2="456" y2="256" stroke="#fff" stroke-width="8" opacity="0.3"/>
+  <line x1="256" y1="56" x2="256" y2="456" stroke="#fff" stroke-width="8" opacity="0.3"/>
+  
+  <!-- Airplane -->
+  <g transform="translate(256, 160) rotate(45)">
+    <path d="M0,-80 L20,-40 L20,-20 L80,20 L80,40 L20,20 L20,60 L40,80 L40,100 L0,80 L-40,100 L-40,80 L-20,60 L-20,20 L-80,40 L-80,20 L-20,-20 L-20,-40 Z" 
+          fill="url(#planeGrad)" 
+          stroke="#fff" 
+          stroke-width="4"/>
+  </g>
+  
+  <!-- Flight path arc -->
+  <path d="M100,350 Q256,150 420,320" 
+        fill="none" 
+        stroke="#fff" 
+        stroke-width="6" 
+        stroke-dasharray="20,10" 
+        opacity="0.6"/>
 </svg>
