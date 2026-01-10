@@ -128,6 +128,10 @@ const App: React.FC = () => {
           )}
         </main>
 
+        <footer className="py-4 px-6 text-center text-sm text-sand-500 dark:text-slate-400 border-t border-sand-200 dark:border-slate-700 bg-cream/80 dark:bg-slate-900/80 backdrop-blur-sm transition-colors duration-300">
+          Hello World
+        </footer>
+
         {/* Create Trip Modal */}
         {showAddModal && (
           <div className="fixed inset-0 z-[100] bg-ocean-900/60 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
