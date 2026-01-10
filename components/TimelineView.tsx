@@ -67,7 +67,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ items, onItemClick, onEditI
         e.stopPropagation();
         onAddAfter?.(item, dateStr);
       }}
-      className="absolute -left-[40px] z-10 w-7 h-7 bg-white border-2 border-sand-100 rounded-full flex items-center justify-center text-sand-400 hover:text-ocean-600 hover:border-ocean-200 hover:shadow-md transition-all group/add"
+      className="absolute -left-[40px] z-10 w-7 h-7 bg-white dark:bg-slate-700 border-2 border-sand-100 dark:border-slate-600 rounded-full flex items-center justify-center text-sand-400 dark:text-slate-400 hover:text-ocean-600 dark:hover:text-ocean-400 hover:border-ocean-200 dark:hover:border-ocean-500 hover:shadow-md transition-all group/add"
       title="Add event here"
     >
       <Plus className="w-4 h-4 transition-transform group-hover/add:rotate-90" />
@@ -79,11 +79,11 @@ const TimelineView: React.FC<TimelineViewProps> = ({ items, onItemClick, onEditI
       {Object.entries(groups).map(([date, dayItems]) => (
         <div key={date} className="relative">
           <div className="flex items-center gap-2 mb-4">
-            <Calendar className="w-4 h-4 text-sand-400" />
-            <h3 className="font-bold text-ocean-900 text-sm uppercase tracking-wider">{date}</h3>
+            <Calendar className="w-4 h-4 text-sand-400 dark:text-slate-500" />
+            <h3 className="font-bold text-ocean-900 dark:text-sand-100 text-sm uppercase tracking-wider">{date}</h3>
           </div>
           
-          <div className="space-y-8 ml-3 border-l-2 border-sand-200 pl-6 relative">
+          <div className="space-y-8 ml-3 border-l-2 border-sand-200 dark:border-slate-700 pl-6 relative">
             <div className="relative h-0">
               <div className="absolute -top-4">
                 <AddButton dateStr={dayItems[0].startTime} />
@@ -99,10 +99,10 @@ const TimelineView: React.FC<TimelineViewProps> = ({ items, onItemClick, onEditI
                   onMouseLeave={() => onItemHover?.(undefined)}
                   className={`group relative p-3 rounded-2xl transition-all cursor-pointer border ${
                     activeId === item.id 
-                      ? 'bg-white border-ocean-200 shadow-lg scale-[1.02]' 
+                      ? 'bg-white dark:bg-slate-800 border-ocean-200 dark:border-ocean-700 shadow-lg scale-[1.02]' 
                       : hoveredItemId === item.id
-                        ? 'bg-white border-ocean-300 shadow-md ring-2 ring-ocean-100'
-                        : 'bg-white/50 border-transparent hover:bg-white hover:border-sand-200 shadow-sm'
+                        ? 'bg-white dark:bg-slate-800 border-ocean-300 dark:border-ocean-600 shadow-md ring-2 ring-ocean-100 dark:ring-ocean-900'
+                        : 'bg-white/50 dark:bg-slate-800/50 border-transparent hover:bg-white dark:hover:bg-slate-800 hover:border-sand-200 dark:hover:border-slate-600 shadow-sm'
                   }`}
                 >
                   <div className={`absolute -left-[33px] top-6 w-3 h-3 rounded-full border-2 border-white ${getColor(item.type)} transition-transform ${hoveredItemId === item.id ? 'scale-150' : 'group-hover:scale-125'}`} />
@@ -156,14 +156,14 @@ const TimelineView: React.FC<TimelineViewProps> = ({ items, onItemClick, onEditI
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="p-1 text-sand-400 hover:text-terracotta-600 hover:bg-terracotta-50 rounded-lg transition-colors"
+                            className="p-1 text-sand-400 dark:text-slate-500 hover:text-terracotta-600 hover:bg-terracotta-50 dark:hover:bg-terracotta-900/30 rounded-lg transition-colors"
                             title="View on Google Maps"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                           <button 
                             onClick={(e) => { e.stopPropagation(); onEditItem(item); }}
-                            className="p-1 text-sand-400 hover:text-ocean-600 hover:bg-ocean-50 rounded-lg transition-colors"
+                            className="p-1 text-sand-400 dark:text-slate-500 hover:text-ocean-600 hover:bg-ocean-50 dark:hover:bg-ocean-900/30 rounded-lg transition-colors"
                             title="Edit activity"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
@@ -175,7 +175,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ items, onItemClick, onEditI
                               onDeleteItem(item.id);
                             }
                           }}
-                            className="p-1 text-sand-400 hover:text-terracotta-600 hover:bg-terracotta-50 rounded-lg transition-colors"
+                            className="p-1 text-sand-400 dark:text-slate-500 hover:text-terracotta-600 hover:bg-terracotta-50 dark:hover:bg-terracotta-900/30 rounded-lg transition-colors"
                             title="Delete activity"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

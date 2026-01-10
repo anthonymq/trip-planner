@@ -17,7 +17,7 @@ interface TripListProps {
 const TripList: React.FC<TripListProps> = ({ trips, onSelectTrip, onDeleteTrip, onCreateNew }) => {
   return (
     <div className="p-4 md:p-8 space-y-8 max-w-6xl mx-auto w-full animate-in fade-in duration-500">
-      <div className="bg-gradient-to-br from-ocean-600 via-ocean-700 to-ocean-800 rounded-[2rem] p-8 md:p-12 text-white shadow-2xl shadow-ocean-900/20 relative overflow-hidden group">
+      <div className="bg-gradient-to-br from-ocean-600 via-ocean-700 to-ocean-800 dark:from-ocean-700 dark:via-ocean-800 dark:to-slate-900 rounded-[2rem] p-8 md:p-12 text-white shadow-2xl shadow-ocean-900/20 relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-terracotta-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
         
@@ -39,7 +39,7 @@ const TripList: React.FC<TripListProps> = ({ trips, onSelectTrip, onDeleteTrip, 
           <div 
             key={trip.id} 
             onClick={() => onSelectTrip(trip.id)} 
-            className="group relative h-80 rounded-[2rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500 bg-sand-100"
+            className="group relative h-80 rounded-[2rem] overflow-hidden cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500 bg-sand-100 dark:bg-slate-800"
           >
             <img 
               src={trip.coverImage} 
@@ -71,10 +71,10 @@ const TripList: React.FC<TripListProps> = ({ trips, onSelectTrip, onDeleteTrip, 
         
         {trips.length === 0 && (
            <div className="col-span-full py-12 flex flex-col items-center justify-center text-center opacity-50">
-              <div className="w-16 h-16 bg-sand-200 rounded-full flex items-center justify-center mb-4">
-                 <Sparkles className="w-8 h-8 text-sand-400" />
+              <div className="w-16 h-16 bg-sand-200 dark:bg-slate-700 rounded-full flex items-center justify-center mb-4">
+                 <Sparkles className="w-8 h-8 text-sand-400 dark:text-slate-500" />
               </div>
-              <p className="text-sand-500 font-serif text-xl italic">Your travel journal is empty.</p>
+              <p className="text-sand-500 dark:text-slate-400 font-serif text-xl italic">Your travel journal is empty.</p>
            </div>
         )}
       </div>
