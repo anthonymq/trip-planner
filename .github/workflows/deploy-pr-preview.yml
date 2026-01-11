@@ -3,6 +3,12 @@ name: Deploy PR Preview
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to deploy'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -10,20 +16,35 @@ permissions:
   deployments: write
 
 concurrency:
-  group: pr-preview-${{ github.event.pull_request.number }}
+  group: pr-preview-${{ github.event.pull_request.number || github.event.inputs.pr_number }}
   cancel-in-progress: true
 
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
     environment:
-      name: pr-${{ github.event.pull_request.number }}
+      name: pr-${{ github.event.pull_request.number || github.event.inputs.pr_number }}
       url: ${{ steps.deploy.outputs.preview_url }}
     steps:
+      - name: Get PR info
+        id: pr-info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request?.number || '${{ github.event.inputs.pr_number }}';
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: parseInt(prNumber)
+            });
+            core.setOutput('number', pr.number);
+            core.setOutput('head_sha', pr.head.sha);
+            core.setOutput('head_ref', pr.head.ref);
+
       - name: Checkout PR branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ steps.pr-info.outputs.head_sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -39,7 +60,7 @@ jobs:
       - name: Build project
         id: build
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_NUMBER=${{ steps.pr-info.outputs.number }}
           REPO_NAME=${{ github.event.repository.name }}
           
           if [ -f "package.json" ]; then
@@ -64,7 +85,7 @@ jobs:
       - name: Deploy to gh-pages
         id: deploy
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_NUMBER=${{ steps.pr-info.outputs.number }}
           REPO_NAME=${{ github.event.repository.name }}
           OWNER=${{ github.repository_owner }}
           OUTPUT_DIR=${{ steps.build.outputs.output_dir }}
@@ -92,13 +113,14 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumber = context.payload.pull_request.number;
+            const prNumber = ${{ steps.pr-info.outputs.number }};
             const previewUrl = '${{ steps.deploy.outputs.preview_url }}';
+            const headSha = '${{ steps.pr-info.outputs.head_sha }}';
             const comments = await github.rest.issues.listComments({
               owner: context.repo.owner, repo: context.repo.repo, issue_number: prNumber
             });
             const existing = comments.data.find(c => c.user.type === 'Bot' && c.body.includes('Preview Deployment'));
-            const body = `## 🚀 Preview Deployment\n\n| Preview | [${previewUrl}](${previewUrl}) |\n|---------|---|\n| Commit | \`${{ github.event.pull_request.head.sha }}\` |`;
+            const body = `## 🚀 Preview Deployment\n\n| Preview | [${previewUrl}](${previewUrl}) |\n|---------|---|\n| Commit | \`${headSha}\` |`;
             if (existing) {
               await github.rest.issues.updateComment({owner: context.repo.owner, repo: context.repo.repo, comment_id: existing.id, body});
             } else {
