@@ -44,7 +44,7 @@ jobs:
           
           if [ -f "package.json" ]; then
             if [ -f "vite.config.ts" ] || [ -f "vite.config.js" ]; then
-              npm run build -- --base="/${REPO_NAME}/pr-${PR_NUMBER}/" || npm run build
+              VITE_BASE_PATH="/${REPO_NAME}/pr-${PR_NUMBER}/" npm run build
             elif grep -q '"build"' package.json; then
               npm run build
             fi
