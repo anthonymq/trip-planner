@@ -44,11 +44,13 @@ import {
   Wand2,
   PanelRightOpen,
   PanelRightClose,
-  RefreshCw
+  RefreshCw,
+  ClipboardList
 } from 'lucide-react';
-import { Trip, ItineraryItem, ActivityType, AISuggestion } from '../types';
+import { Trip, ItineraryItem, ActivityType, AISuggestion, ChecklistItem } from '../types';
 import TimelineView from './TimelineView';
 import MapView from './MapView';
+import ChecklistView from './ChecklistView';
 import ActivityForm from './ActivityForm';
 import ErrorBoundary from './ErrorBoundary';
 import { getAIPersonalizedSuggestions, magicParseActivities } from '../services/geminiService';
@@ -91,10 +93,11 @@ interface TripDetailProps {
 }
 
 const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) => {
-  const [activeTab, setActiveTab] = useState<'timeline' | 'map' | 'ai'>('timeline');
+  const [activeTab, setActiveTab] = useState<'timeline' | 'map' | 'ai' | 'checklist'>('timeline');
   const [activeItemId, setActiveItemId] = useState<string | undefined>();
   const [hoveredItemId, setHoveredItemId] = useState<string | undefined>();
   const [showSuggestionsPanel, setShowSuggestionsPanel] = useState(false);
+  const [showChecklistPanel, setShowChecklistPanel] = useState(false);
   
   // Modal States
   const [showQuickAdd, setShowQuickAdd] = useState(false);
@@ -246,6 +249,7 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
         <div className="flex p-1.5 bg-sand-200/50 dark:bg-slate-800 rounded-xl mb-3">
           <button onClick={() => setActiveTab('timeline')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'timeline' ? 'bg-white dark:bg-slate-700 shadow-sm text-ocean-600 dark:text-ocean-400' : 'text-sand-500 dark:text-slate-400'}`}>Timeline</button>
           <button onClick={() => setActiveTab('map')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'map' ? 'bg-white dark:bg-slate-700 shadow-sm text-ocean-600 dark:text-ocean-400' : 'text-sand-500 dark:text-slate-400'}`}>Map</button>
+          <button onClick={() => setActiveTab('checklist')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'checklist' ? 'bg-white dark:bg-slate-700 shadow-sm text-ocean-600 dark:text-ocean-400' : 'text-sand-500 dark:text-slate-400'}`}>Checklist</button>
           <button onClick={() => setActiveTab('ai')} className={`flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all ${activeTab === 'ai' ? 'bg-white dark:bg-slate-700 shadow-sm text-terracotta-600 dark:text-terracotta-400' : 'text-sand-500 dark:text-slate-400'}`}>Ideas</button>
         </div>
         
@@ -269,6 +273,9 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
         </button>
         <button onClick={() => setShowSuggestionsPanel(!showSuggestionsPanel)} className={`py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 border transition-all ${showSuggestionsPanel ? 'bg-terracotta-100 dark:bg-terracotta-900/30 text-terracotta-600 dark:text-terracotta-400 border-terracotta-200 dark:border-terracotta-700' : 'bg-white dark:bg-slate-800 text-ocean-600 dark:text-ocean-400 border-sand-200 dark:border-slate-600 hover:bg-sand-50 dark:hover:bg-slate-700'}`}>
            <Sparkles className="w-3 h-3" /> Suggestions
+        </button>
+        <button onClick={() => setShowChecklistPanel(!showChecklistPanel)} className={`py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 border transition-all ${showChecklistPanel ? 'bg-ocean-100 dark:bg-ocean-900/30 text-ocean-600 dark:text-ocean-400 border-ocean-200 dark:border-ocean-700' : 'bg-white dark:bg-slate-800 text-ocean-600 dark:text-ocean-400 border-sand-200 dark:border-slate-600 hover:bg-sand-50 dark:hover:bg-slate-700'}`}>
+           <ClipboardList className="w-3 h-3" /> Checklist
         </button>
       </div>
 
@@ -358,8 +365,34 @@ const TripDetail: React.FC<TripDetailProps> = ({ trip, onBack, onUpdateTrip }) =
                    isLoading={isRefreshingSuggestions} 
                    onRefresh={handleRefreshSuggestions} 
                  />
+</div>
+             </div>
+
+             {/* Desktop Checklist Panel (Overlay) */}
+             <div className={`hidden lg:flex absolute top-4 left-4 bottom-4 w-96 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/20 dark:border-slate-700 transform transition-all duration-500 ease-out z-30 flex-col overflow-hidden ${showChecklistPanel ? 'translate-x-0 opacity-100' : '-translate-x-[120%] opacity-0'}`}>
+               <div className="p-4 border-b border-sand-100 dark:border-slate-700 flex items-center justify-between bg-white/50 dark:bg-slate-800/50">
+                  <h3 className="font-serif font-bold text-lg text-ocean-900 dark:text-sand-100 flex items-center gap-2">
+                     <ClipboardList className="w-4 h-4 text-ocean-500" /> Packing Checklist
+                  </h3>
+                  <button onClick={() => setShowChecklistPanel(false)} className="p-2 hover:bg-sand-100 dark:hover:bg-slate-700 rounded-full text-sand-500 dark:text-slate-400 transition-colors">
+                     <X className="w-4 h-4" />
+                  </button>
+               </div>
+               <div className="flex-1 overflow-y-auto">
+                 <ChecklistView 
+                   items={trip.checklist || []} 
+                   onUpdateItems={(items) => onUpdateTrip({ ...trip, checklist: items })} 
+                 />
                </div>
             </div>
+        </div>
+
+        {/* Mobile Checklist Tab */}
+        <div className={`lg:hidden absolute inset-0 overflow-y-auto bg-cream dark:bg-slate-900 transition-all duration-300 z-30 ${activeTab === 'checklist' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+           <ChecklistView 
+             items={trip.checklist || []} 
+             onUpdateItems={(items) => onUpdateTrip({ ...trip, checklist: items })} 
+           />
         </div>
 
         {/* Mobile Suggestions Tab */}

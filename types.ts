@@ -32,6 +32,7 @@ export interface Trip {
   itinerary: ItineraryItem[];
   budget?: number;
   suggestions?: AISuggestion[];
+  checklist?: ChecklistItem[];
 }
 
 export interface AISuggestion {
@@ -45,4 +46,11 @@ export interface AISuggestion {
   estimatedCost?: string;
   priceRange?: string;
   reason: string;
+}
+
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  checked: boolean;
+  category?: 'documents' | 'clothing' | 'toiletries' | 'electronics' | 'other';
 }
