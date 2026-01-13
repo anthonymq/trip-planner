@@ -66,7 +66,7 @@ const InstallPrompt: React.FC = () => {
     <div className="fixed bottom-4 left-4 z-[100] bg-white text-ocean-900 p-4 rounded-xl shadow-2xl border border-sand-200 flex items-center gap-4 animate-in slide-in-from-bottom duration-300 max-w-sm">
       <div className="flex-1">
         <h3 className="font-bold text-sm mb-1">
-          Install WanderList
+          Install WeTravel
         </h3>
         <p className="text-xs text-sand-400">
           {isIOS 
